@@ -325,8 +325,37 @@ body:not(.portrait) #rotateHint{display:none}
 .btn.team-red{background:linear-gradient(135deg,#ff434b,#b1111b);border-color:#ff7a80;color:#fff}
 .btn.team-blue{background:linear-gradient(135deg,#3b82ff,#1545b8);border-color:#8ab8ff;color:#fff}
 /* จับเวลา PVP + สถานะอีกฝ่าย */
-.pvp-timer{display:inline-flex;align-items:center;gap:6px;margin-right:12px;padding:2px 12px;border-radius:999px;border:1px solid var(--line-2);font-family:var(--font-disp);font-weight:700;font-size:22px;color:var(--ink);vertical-align:middle}
-.pvp-timer.warn{border-color:var(--bad);color:var(--bad);animation:blink calc(.5s*var(--spd)) ease-in-out infinite alternate}
+/* นาฬิกานับถอยหลัง PVP: วงแหวนใหญ่ชิดซ้ายปุ่มหลัก (ตรงที่สายตาอยู่ตอนจะกดยืนยัน) · 20 วิสุดท้ายเหลือง · 10 วิสุดท้ายแดง + เต้นทุกวินาที */
+.btns-main{position:relative}
+.controls.has-clock .hint{padding-right:132px}
+.pvp-clock{--p:1;--c:var(--gold);position:absolute;right:calc(100% + 20px);top:50%;width:108px;height:108px;margin-top:-54px;border-radius:50%;display:grid;place-items:center;z-index:3;
+  background:radial-gradient(closest-side,#0b1018 77%,transparent 78% 100%),conic-gradient(var(--c) calc(var(--p) * 360deg),rgba(255,255,255,.13) 0);
+  box-shadow:0 0 0 3px rgba(0,0,0,.55),0 8px 26px rgba(0,0,0,.6),0 0 28px color-mix(in srgb,var(--c) 40%,transparent)}
+.pvp-clock b{font-family:var(--font-disp);font-size:50px;font-weight:700;line-height:1;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+.pvp-clock small{position:absolute;bottom:17px;font-size:12px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.6)}
+.pvp-clock.warn{--c:#ffab1f}
+.pvp-clock.danger{--c:var(--bad)} .pvp-clock.danger b{color:#ffe1e1}
+.pvp-clock.beat{animation:clockBeat .45s ease-out}
+.pvp-clock.cut{animation:clockCut .7s ease-out}
+@keyframes clockBeat{0%{transform:scale(1.16)}100%{transform:scale(1)}}
+@keyframes clockCut{0%,40%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 0 14px color-mix(in srgb,var(--bad) 55%,transparent)}100%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 8px 26px rgba(0,0,0,.6)}}
+/* ผู้ชม (OBSERVE): มือทั้งสองฝ่ายเปิดหงาย แบ่งครึ่งพื้นที่มือ · ป้ายใต้กองกลางบอกว่าใครเก็บใบไหน */
+.spec-hands{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;height:100%}
+.spec-hand{display:flex;flex-direction:column;gap:6px;min-width:0;padding:0 10px;border-radius:14px}
+.spec-hand.side-red{background:linear-gradient(180deg,rgba(255,61,69,.1),transparent 72%)}
+.spec-hand.side-blue{background:linear-gradient(180deg,rgba(59,130,255,.12),transparent 72%)}
+.spec-hand .hand-head > b{font-size:20px}
+.spec-hand .hand-cards{gap:8px}
+.spec-hand .hc{width:auto}
+.spec-hand .hc .card{--cw:98px}
+.spec-hand .cap{font-size:12.5px;max-width:104px}
+.spec-badge{display:inline-block;margin-right:10px;padding:1px 12px;border-radius:999px;background:var(--gold);color:#1a1204;font-family:var(--font-disp);font-weight:700;font-size:15px;letter-spacing:.14em;vertical-align:middle}
+.mk-tags{display:flex;gap:6px;justify-content:center;margin-top:4px}
+.mk-tag{padding:0 10px;border-radius:999px;font-family:var(--font-disp);font-weight:700;font-size:15px;line-height:1.5;color:#fff}
+.mk-tag.red{background:var(--red)} .mk-tag.blue{background:var(--blue)}
+.pvp-watch{display:flex;align-items:center;gap:16px;margin:4px 0 2px;font-size:18px;color:var(--muted)}
+.watchers{margin-left:14px;font-size:17px;color:var(--gold)}
+.seat-vs.count{font-size:120px;line-height:1;color:#fff;text-shadow:0 0 30px var(--gold),0 0 60px rgba(255,200,61,.5);animation:clockBeat .6s ease-out}
 .opp-status{font-size:17px;font-weight:600;color:var(--muted);white-space:nowrap}
 .opp-status.done{color:var(--heal)}
 
@@ -557,6 +586,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important}
           <div class="seat-vs">VS</div>
           <div class="seat blue" id="seatBLUE"></div>
         </div>
+        <div class="pvp-watch" id="pvpWatch" hidden></div>
         <p class="pvp-note">กด READY ฝั่งที่ต้องการ แล้วรออีกฝ่ายกดอีกฝั่ง · พร้อมทั้งคู่ = เริ่มเกมทันที · เก็บ/วางการ์ดเฟสละ 60 วินาที · ใครกดยืนยันก่อน เวลาอีกฝ่ายเหลือ 30 วินาที · หมดเวลา = ยืนยันให้อัตโนมัติ</p>
         <button type="button" class="btn ghost" data-act="toLobby">← กลับ LOBBY</button>
       </section>
@@ -572,6 +602,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important}
 
       <div class="tools left">
         <label class="pill" for="sound"><input type="checkbox" id="sound"> เสียง</label>
+        <label class="pill" for="music"><input type="checkbox" id="music"> เพลง</label>
         <label class="pill" for="fast"><input type="checkbox" id="fast"> เร่งความเร็ว</label>
         <button type="button" class="pill" id="quit" data-act="quit" hidden>ออกจากเกม</button>
       </div>
@@ -1066,7 +1097,7 @@ function fitStage() {
    ทุกเสียงผ่านห้องก้องขนาดใหญ่ (convolver) + คอมเพรสเซอร์ ให้ฟังเหมือนฮอลล์ · เริ่มได้หลังผู้เล่นคลิกครั้งแรก
    ชิ้นส่วน: boom (ทิมปานี/แรงกระแทก) · metal (ดาบ/โล่กระทบ) · swish (ฟัน/ลม) · brass (แตร) · choir (คณะร้อง) · sparkle (ประกายเวท) · rumble (ฟ้าคำราม) · riser (ชาร์จพลัง) */
 const sfx = (() => {
-  let ctx = null, dry = null, verb = null, noiseBuf = null, on = true, lastError = null;
+  let ctx = null, dry = null, verb = null, noiseBuf = null, musicOut = null, on = true, lastError = null;
   try { on = localStorage.getItem('df-sound') !== '0'; } catch (e) { /* ข้ามได้ */ }
   const N = { D2: 73.42, A2: 110, C3: 130.81, D3: 146.83, Eb3: 155.56, F3: 174.61, G3: 196, A3: 220, D4: 293.66, E4: 329.63, F4: 349.23, Fs4: 369.99, A4: 440, D5: 587.33, E5: 659.25, Fs5: 739.99, A5: 880, D6: 1174.66, E6: 1318.51, Fs6: 1479.98, A6: 1760 };
   function impulse(c, seconds, decay) {
@@ -1085,14 +1116,15 @@ const sfx = (() => {
     const wet = c.createGain(); wet.gain.value = 0.9; v.connect(wet); wet.connect(master);
     const nb = c.createBuffer(1, c.sampleRate * 2, c.sampleRate), nd = nb.getChannelData(0);
     for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-    return { dry: d, verb: v, noiseBuf: nb };
+    const mus = c.createGain(); mus.connect(master); // ช่องเพลงประกอบ (ผ่านคอมเพรสเซอร์ตัวเดียวกัน — เสียงเอฟเฟกต์ดังเมื่อไหร่ เพลงหลบให้เอง)
+    return { dry: d, verb: v, noiseBuf: nb, mus };
   }
   function unlock() {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     ctx = new AC();
-    ({ dry, verb, noiseBuf } = build(ctx));
+    ({ dry, verb, noiseBuf, mus: musicOut } = build(ctx));
   }
   // ส่งเสียงออกทางตรง + เข้าห้องก้อง (send = ปริมาณก้อง)
   function route(node, send) {
@@ -1202,6 +1234,10 @@ const sfx = (() => {
     ctrDEF:  () => { metal({ base: 520, dur: 1.8, vol: 0.42 }); noise({ dur: 0.05, vol: 0.5, type: 'highpass', f0: 3000, q: 0.8, attack: 0.001, send: 0.3 }); boom({ f0: 140, f1: 60, dur: 0.5, vol: 0.7 }); choir({ at: 0.15, notes: [N.D4, N.Fs4, N.A4, N.D5], dur: 1.4, vol: 0.06, attack: 0.1 }); sparkle({ at: 0.2, notes: [N.A5, N.D6, N.Fs6, N.A6], step: 0.06, vol: 0.06 }); },
     // Dodge ปราบ Ultimate: ลมพุ่งหลบวูบ → ท่อนเวทย์พุ่งขึ้น + ประกาย · อัลติเมทวืดเป็นบูมอู้อี้
     ctrDODGE: () => { swish({ dur: 0.45, f0: 400, f1: 6000, vol: 0.5, q: 0.7, attack: 0.1 }); swish({ at: 0.25, dur: 0.5, f0: 6000, f1: 700, vol: 0.3, q: 0.8, attack: 0.05 }); tone({ at: 0.1, f0: 900, f1: 2400, dur: 0.35, vol: 0.11, send: 0.7 }); sparkle({ at: 0.2, notes: [N.E5, N.A5, N.E6, N.A6], step: 0.05, vol: 0.08 }); boom({ at: 0.05, f0: 90, f1: 40, dur: 0.6, vol: 0.6 }); brass({ at: 0.15, notes: [N.A3, N.E4], dur: 0.5, vol: 0.08, attack: 0.02 }); },
+    // นับเวลา: ติ๊กไม้เบา ๆ ทุกวินาที · 10 วิสุดท้ายสูงและดังขึ้น · 5 วิสุดท้ายมีตุ้บเหมือนหัวใจเต้น
+    tick:    () => { noise({ dur: 0.03, vol: 0.07, f0: 2600, q: 6, attack: 0.001, send: 0.06 }); tone({ type: 'triangle', f0: 1250, f1: 1100, dur: 0.045, vol: 0.028, attack: 0.001, send: 0.05 }); },
+    tickHi:  () => { noise({ dur: 0.04, vol: 0.12, f0: 3400, q: 7, attack: 0.001, send: 0.08 }); tone({ type: 'triangle', f0: 1760, f1: 1600, dur: 0.06, vol: 0.05, attack: 0.001, send: 0.08 }); },
+    tickEnd: () => { noise({ dur: 0.045, vol: 0.14, f0: 3600, q: 7, attack: 0.001, send: 0.08 }); tone({ type: 'triangle', f0: 1976, f1: 1760, dur: 0.07, vol: 0.06, attack: 0.001, send: 0.08 }); boom({ f0: 78, f1: 42, dur: 0.22, vol: 0.28, send: 0.04 }); boom({ at: 0.16, f0: 70, f1: 40, dur: 0.18, vol: 0.18, send: 0.04 }); },
     // สลับการ์ด: ปัดไพ่สองใบสวนกัน + เสียงไพ่ตบเบา ๆ + ติ๊กขึ้น
     swap:    () => { swish({ dur: 0.13, f0: 1600, f1: 4200, vol: 0.16, attack: 0.05, send: 0.15 }); swish({ at: 0.06, dur: 0.13, f0: 4200, f1: 1500, vol: 0.14, attack: 0.03, send: 0.15 }); noise({ at: 0.14, dur: 0.04, vol: 0.2, type: 'highpass', f0: 1800, q: 0.8, attack: 0.002, send: 0.1 }); tone({ at: 0.14, type: 'triangle', f0: 520, f1: 780, dur: 0.12, vol: 0.05, send: 0.2 }); },
   };
@@ -1220,6 +1256,7 @@ const sfx = (() => {
   return {
     unlock, analyze, names: Object.keys(SOUND),
     get state() { return ctx ? ctx.state : 'locked'; },
+    get bus() { return ctx ? { ctx, out: musicOut, verb, noise: noiseBuf } : null; }, // ให้เพลงประกอบใช้ห้องก้องและคอมเพรสเซอร์ชุดเดียวกัน
     get lastError() { return lastError; },
     get on() { return on; },
     set on(v) { on = v; try { localStorage.setItem('df-sound', v ? '1' : '0'); } catch (e) { /* ข้ามได้ */ } },
@@ -1228,6 +1265,671 @@ const sfx = (() => {
       const run = () => { try { SOUND[name](); } catch (e) { lastError = `${name}: ${e.message}`; /* เสียงพังต้องไม่ทำให้เกมพัง */ } };
       if (delay) setTimeout(run, ui.fast ? delay * 0.4 : delay); else run();
     },
+  };
+})();
+
+/* ───────── เพลงประกอบ — สังเคราะห์สดด้วย Web Audio (createMusic อยู่ในส่วนนี้) ───────── */
+/* ───────── ดนตรีประกอบการต่อสู้ (BGM) — สังเคราะห์สดด้วย Web Audio ไม่มีไฟล์เสียง ไม่มีไลบรารี ─────────
+   ใช้บัสเดียวกับ sfx: bus = { ctx, out (สายตรง → master → คอมเพรสเซอร์), verb (ห้องก้องฮอลล์ | null), noise (บัฟเฟอร์ noise | null) }
+   level 0 "battle" 96 BPM · D ไมเนอร์: ไทโกะจังหวะหนัก + โกสต์เบา ๆ · กลองเฟรม/เชกเกอร์ · เบสสายต่ำออสตินาโต 3-3-2
+            · แพดซอว์อุ่น (A: Dm-Bb-F-C ×2 · B: Gm-Dm-Bb-Asus→A | Gm-F-Bb-Asus→A) · ฮอร์นทำนอง · ห้อง 13-16 สายสั้นไต่ขึ้นเข้าเทิร์นอะราวด์
+            · รอบสองเพิ่มไวโอลิน/ฮาร์ป/คอรัส
+   level 1 "danger" 132 BPM: สายสั้น 16th · ไทโกะทุกจังหวะ + ฟิลทุกห้องที่ 4 · สแนร์โรลไต่ขึ้น · แตรกระแทก · เบสอ็อกเทฟ
+            · คอรัส "อา" · ทำนองแตรห้อง 9-16 (i-VI-VII-V: Dm-Bb-C-A … Gm-Bb-C-A · Dm-Bb-Gm-A) · ห้อง 8/16 = Asus4→A
+   เวลา: Worker ติ๊กทุก 50 ms (แท็บเบื้องหลังยังเดิน) → จองโน้ตล่วงหน้า 0.3 วิ เทียบ ctx.currentTime จากนาฬิกาจังหวะ (ไม่ใช้ Date.now)
+   เปลี่ยน level: ที่เส้นห้องถัดไป (ถ้าใกล้) หรือจังหวะถัดไป พร้อมฟิลกลอง + ไรเซอร์ · เสียงพังต้องไม่ทำให้เกมพัง
+   มิกซ์: กาวบัสเพลง (คอมเพรสเซอร์) → TRIM → out · ผ่านคอมเพรสเซอร์ -16 dB ของเกมแล้ว peak ≈ 0.31 · rms ≈ 0.05 (battle) / 0.06 (danger)
+   ใช้: const music = createMusic({ ctx, out: dry, verb, noise: noiseBuf }); music.start(0); music.setIntensity(hp < 40 ? 1 : 0); music.stop(1.5); */
+function createMusic(bus) {
+  'use strict';
+  const LOOK = 0.3, TICK = 50, LATE = 0.005, SOFT_CAP = 56, HARD_CAP = 84;   // LATE = ช้ากว่าเวลาจริงได้ไม่เกินนี้ ไม่งั้นข้ามโน้ต
+  const MIX = 0.14, TRIM = 0.62, WET = 0.3;                   // MIX = ขับเข้ากาวบัส · TRIM = ระดับหลังกาว (makeup gain) · WET = ส่งเข้าฮอลล์
+  const BPM = [96, 132];
+  const sdOf = lv => 60 / BPM[lv] / 4;                       // ความยาวโน้ต 16th (วินาที)
+  const mf = m => 440 * Math.pow(2, (m - 69) / 12);          // MIDI → Hz (D ศูนย์กลางเดียวกับตาราง N ของ sfx)
+
+  // ── คอร์ด: pc = ราก (0=C) · m = ไมเนอร์ · six = ขั้นที่ 6 ในสเกล D ไมเนอร์ · pad/cho = การวางเสียง (MIDI) ──
+  const CH = {
+    Dm: { pc: 2, m: 1, six: 8, pad: [62, 65, 69], cho: [57, 62, 65] },
+    Bb: { pc: 10, m: 0, six: 9, pad: [62, 65, 70], cho: [58, 62, 65] },
+    F:  { pc: 5, m: 0, six: 9, pad: [60, 65, 69], cho: [57, 60, 65] },
+    C:  { pc: 0, m: 0, six: 9, pad: [60, 64, 67], cho: [55, 60, 64] },
+    Gm: { pc: 7, m: 1, six: 9, pad: [62, 67, 70], cho: [55, 58, 62] },
+    A:  { pc: 9, m: 0, six: 8, pad: [61, 64, 69], cho: [57, 61, 64] },
+  };
+  const bassRoot = ch => 38 + ((ch.pc + 10) % 12);           // D2..C#3 (73–139 Hz)
+  // เทิร์นอะราวด์: ห้องคอร์ด A ท้ายวลี = Asus4 (D4) ครึ่งแรก → A (C#4) ครึ่งหลัง · MIDI 61 = C#4 ในทุกการวางเสียงของ A
+  const SUS = [{ 11: 1, 15: 1 }, { 7: 1, 15: 1 }];
+  // ── ฟอร์ม 16 ห้องต่อ level (เล่นวนพร้อมรอบแปร pass คู่/คี่) ──
+  const FORM = [
+    ['Dm', 'Bb', 'F', 'C', 'Dm', 'Bb', 'F', 'C', 'Gm', 'Dm', 'Bb', 'A', 'Gm', 'F', 'Bb', 'A'],
+    ['Dm', 'Bb', 'C', 'A', 'Dm', 'Bb', 'C', 'A', 'Gm', 'Bb', 'C', 'A', 'Dm', 'Bb', 'Gm', 'A'],
+  ];
+  // ทำนอง: [ห้องเริ่ม, [[จังหวะ, MIDI, ยาวกี่จังหวะ] …]] → แผนที่ (ห้อง*16 + 16th) → [MIDI, ยาวกี่ 16th]
+  function melMap(phrases) {
+    const m = {};
+    for (const [bar, notes] of phrases) for (const [b, n, d] of notes) m[Math.round(bar * 16 + b * 4)] = [n, Math.round(d * 4)];
+    return m;
+  }
+  const MEL0 = melMap([   // ฮอร์นกล้าหาญ ห้องละวลี (ห่าง ๆ ทุก 4 ห้อง)
+    [1, [[0, 62, 1.5], [1.5, 65, 0.5], [2, 70, 2], [4, 69, 2], [6, 67, 1], [7, 65, 1], [8, 64, 3]]],
+    [5, [[0, 65, 1.5], [1.5, 70, 0.5], [2, 74, 2], [4, 72, 2], [6, 70, 1], [7, 69, 1], [8, 67, 3]]],
+    [8, [[0, 67, 1.5], [1.5, 70, 0.5], [2, 74, 2], [4, 72, 1], [5, 69, 3]]],
+    [12, [[0, 74, 1.5], [1.5, 72, 0.5], [2, 70, 2], [4, 69, 4], [12, 64, 2], [14, 61, 2]]],
+  ]);
+  const MEL1 = melMap([   // แตรธีมอันตราย ห้อง 9-16
+    [8, [[0, 74, 2], [2, 72, 1], [3, 70, 1], [4, 74, 2], [6, 77, 2], [8, 76, 3], [11, 72, 1], [12, 73, 4]]],
+    [12, [[0, 74, 3], [3, 69, 1], [4, 70, 2], [6, 74, 2], [8, 79, 2], [10, 77, 1], [11, 74, 1], [12, 76, 2], [14, 73, 2]]],
+  ]);
+  // แพตเทิร์น 16 ช่อง (ค่า = ความแรง, 0 = เงียบ)
+  const T0 = [1, 0, 0, 0, 0, 0, 0, 0.16, 0.72, 0, 0, 0, 0, 0, 0.14, 0.22];
+  const T1 = [1, 0, 0, 0, 0.62, 0, 0, 0, 0.85, 0, 0, 0, 0.62, 0, 0, 0];
+  const B0A = { 0: 0, 3: 0, 6: 12, 8: 0, 11: 7, 14: 0 };                // เบส 3-3-2 ท่อน A
+  const B0B = { 0: 0, 2: 0, 3: 0, 6: 7, 8: 0, 10: 0, 11: 0, 14: 12 };   // ท่อน B ขับขึ้น
+  const OST_A = [12, 0, 0, 12, 0, 0, 7, 0, 12, 0, 0, 12, 0, 0, 7, 0];     // สายสั้น 16th (ขั้นจากราก)
+  const OST_B = [12, 0, 0, 7, 12, 0, 0, 's', 12, 0, 0, 7, 12, 0, 's', 7];
+  const ACC = [1, 0.55, 0.6, 0.9, 0.55, 0.6, 0.9, 0.55, 1, 0.55, 0.6, 0.9, 0.55, 0.6, 0.9, 0.55];
+
+  const noiseCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+  function makeNoise(c) {
+    if (noiseCache && noiseCache.has(c)) return noiseCache.get(c);
+    const b = c.createBuffer(1, c.sampleRate * 2, c.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    if (noiseCache) noiseCache.set(c, b);
+    return b;
+  }
+
+  /* ── เครื่องยนต์เพลง 1 ชุดต่อ 1 บริบทเสียง (ของจริง หรือ OfflineAudioContext ตอนทดสอบ) ── */
+  function engine(b, offline) {
+    const c = b.ctx, out = b.out || c.destination, verb = b.verb || null, nz = b.noise || makeNoise(c);
+    let seed = 20260925;                                     // สุ่มแบบกำหนดได้ (humanize ซ้ำเดิมทุกครั้ง)
+    const rnd = () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const S = { on: false, lv: 0, cur: 0, pend: null, bar: 0, st: 0, pass: 0, barT: 0, sd: sdOf(0), stopAt: null, g: null, act: [], hold: [], fills: [], fd: { v0: 0, v1: 0, t0: 0, t1: 0 }, stats: { voices: 0, dropped: 0, maxAct: 0, switches: [] } };
+
+    // ── สายเสียง: กลุ่มเครื่อง (HPF/แพนร่วมกัน) → mix → fade → out · ส่งก้องผ่าน wet → fadeW → verb ──
+    function graph(solo) {
+      const g = {};
+      g.fade = c.createGain(); g.fade.gain.value = 0;
+      g.mix = c.createGain(); g.mix.gain.value = MIX;
+      // กาวบัสเพลง: กดยอดไทโกะที่ซ้อนกันบนจังหวะหนัก ให้เพลงนิ่งอยู่ใต้ sfx
+      const glue = c.createDynamicsCompressor();
+      glue.threshold.value = -24; glue.knee.value = 6; glue.ratio.value = 6; glue.attack.value = 0.001; glue.release.value = 0.25;
+      const trim = c.createGain(); trim.gain.value = TRIM;
+      g.mix.connect(glue); glue.connect(trim); trim.connect(g.fade); g.fade.connect(out);
+      if (verb) { g.wet = c.createGain(); g.wet.gain.value = WET; g.fadeW = c.createGain(); g.fadeW.gain.value = 0; g.wet.connect(g.fadeW); g.fadeW.connect(verb); }
+      const grp = (name, lvl, send, hp, pan) => {
+        const head = c.createGain(); let tail = head;
+        head.gain.value = solo && solo !== name ? 0 : lvl;
+        if (hp) { const f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; f.Q.value = 0.707; tail.connect(f); tail = f; }
+        if (pan && c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = pan; tail.connect(p); tail = p; }
+        tail.connect(g.mix);
+        if (g.wet && send) { const s = c.createGain(); s.gain.value = send; tail.connect(s); s.connect(g.wet); }
+        return head;
+      };
+      // grp(ชื่อ, ระดับ, ส่งก้อง, HPF, แพน)
+      g.drum = grp('drum', 0.7, 0.22, 0, 0);            // ไทโกะ/เฟรม/สแนร์ — ย่านซับอยู่ที่นี่เท่านั้น
+      g.perc = grp('perc', 1, 0.25, 380, 0.3);          // เชกเกอร์/ฉาบ
+      g.bass = grp('bass', 0.3, 0.06, 60, 0);          // เบาไว้ ไม่ให้ชนเสียงบูมของ sfx
+      g.str = grp('str', 2.2, 0.18, 130, -0.25);
+      g.pad = grp('pad', 0.95, 0.4, 140, 0);
+      g.brass = grp('brass', 1.5, 0.35, 110, 0.18);
+      g.choir = grp('choir', 0.65, 0.6, 170, -0.12);
+      g.harp = grp('harp', 1, 0.5, 220, 0.35);
+      return g;
+    }
+    // จำกัดจำนวนเสียงพร้อมกัน (นับจากเวลาจบที่จองไว้ ใช้ได้ทั้งเล่นจริงและออฟไลน์) · must = เสียงสำคัญใช้เพดานสูงกว่า
+    function room(t, end, n, must) {
+      const a = S.act;
+      for (let i = a.length - 1; i >= 0; i--) if (a[i] <= t) { a[i] = a[a.length - 1]; a.pop(); }
+      if (a.length + n > (must ? HARD_CAP : SOFT_CAP)) { S.stats.dropped++; return false; }
+      for (let k = 0; k < n; k++) a.push(end);
+      S.stats.voices++;
+      if (a.length > S.stats.maxAct) S.stats.maxAct = a.length;
+      return true;
+    }
+    const G = v => { const n = c.createGain(); n.gain.value = v; return n; };
+    function flt(type, f, q) { const n = c.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; return n; }
+    function osc(type, f, t, end, det) { const o = c.createOscillator(); o.type = type; o.frequency.value = f; if (det) o.detune.value = det; o.start(t); o.stop(end); return o; }
+    function nsrc(t, end) { const s = c.createBufferSource(); s.buffer = nz; s.loop = true; s.start(t, rnd() * Math.max(0, nz.duration - 0.05)); s.stop(end); return s; }
+    // จบโน้ตแล้วถอดสายทิ้ง — ไม่ค้างโหนดต่อโน้ต
+    function tidy(src, nodes) { src.onended = () => { for (const n of nodes) { try { n.disconnect(); } catch (e) { /* ข้ามได้ */ } } }; }
+    function hit(p, t, a, v, dec) { p.setValueAtTime(0.0001, t); p.exponentialRampToValueAtTime(Math.max(v, 0.0002), t + a); p.exponentialRampToValueAtTime(0.0001, t + a + dec); }
+    // จำเสียงยาว (แพด/คอรัส/แตร) ไว้ตัดตอนเปลี่ยน level · h.k = เกน "ตัด" แยกจากเอนเวโลป (ไม่ต้อง cancel เอนเวโลปกลางทาง
+    // ซึ่งทำให้ค่ากระโดดเป็น 0 ทันที = เสียงคลิก) · ทิ้งตัวที่จบแล้วเพื่อไม่ให้รายการโตไม่รู้จบ
+    function keep(h, t) { S.hold = S.hold.filter(x => x.end > t); S.hold.push(h); }
+    const vjit = (v, a = 0.08) => v * (1 - a + rnd() * 2 * a);   // ความแรงไม่เท่ากันทุกโน้ต (มนุษย์เล่น)
+    // ซัสเทน: ขึ้นเชิงเส้น → คงที่ → ปล่อย (คงที่ไว้เพื่อให้ตัดตอนเปลี่ยน level ได้เนียน)
+    function sus(p, t, a, v, dur, rel) { p.setValueAtTime(0, t); p.linearRampToValueAtTime(v, t + a); p.setValueAtTime(v, t + Math.max(a, dur)); p.linearRampToValueAtTime(0, t + Math.max(a, dur) + rel); }
+
+    /* ── เครื่องดนตรี ── */
+    // ไทโกะ/ทิมปานี: ไซน์ตกพิตช์ + หนังกลอง + ลมกระแทก
+    function taiko(t, v, p = 1, dest = S.g.drum) {
+      const dec = 0.4 + 0.45 * Math.min(1, v), end = t + dec + 0.1;   // โกสต์/ทอมเบา ๆ หางสั้น ประหยัดเสียง
+      if (!room(t, end, 3, v >= 0.3)) return;
+      const o1 = c.createOscillator(), g1 = G(0), o2 = c.createOscillator(), g2 = G(0), n = nsrc(t, t + 0.25), f = flt('lowpass', 1000, 0.7), g3 = G(0);
+      o1.frequency.setValueAtTime(118 * p, t); o1.frequency.exponentialRampToValueAtTime(46 * p, t + 0.32);
+      o2.type = 'triangle'; o2.frequency.setValueAtTime(235 * p, t); o2.frequency.exponentialRampToValueAtTime(95 * p, t + 0.1);
+      f.frequency.setValueAtTime(1300 * p, t); f.frequency.exponentialRampToValueAtTime(90, t + 0.14);
+      hit(g1.gain, t, 0.005, 0.85 * v, dec); hit(g2.gain, t, 0.003, 0.18 * v, 0.14); hit(g3.gain, t, 0.003, 0.32 * v, 0.16);
+      o1.connect(g1); o2.connect(g2); n.connect(f); f.connect(g3);
+      g1.connect(dest); g2.connect(dest); g3.connect(dest);
+      o1.start(t); o1.stop(end); o2.start(t); o2.stop(t + 0.2);
+      tidy(o1, [o1, g1, o2, g2, n, f, g3]);
+    }
+    // กลองเฟรม: หนังต่ำนุ่ม
+    function frame(t, v) {
+      const end = t + 0.3;
+      if (!room(t, end, 2, false)) return;
+      const n = nsrc(t, end), f = flt('bandpass', 230, 1.4), g = G(0), o = osc('sine', 190, t, end), og = G(0);
+      o.frequency.setValueAtTime(190, t); o.frequency.exponentialRampToValueAtTime(120, t + 0.2);
+      hit(g.gain, t, 0.002, 0.5 * v, 0.2); hit(og.gain, t, 0.002, 0.3 * v, 0.18);
+      n.connect(f); f.connect(g); g.connect(S.g.drum); o.connect(og); og.connect(S.g.drum);
+      tidy(o, [o, og, n, f, g]);
+    }
+    function shaker(t, v, dec = 0.05) {
+      const end = t + dec + 0.03;
+      if (!room(t, end, 1, false)) return;
+      const n = nsrc(t, end), f = flt('highpass', 6500, 0.8), g = G(0);
+      hit(g.gain, t, 0.012, 0.42 * v, dec);
+      n.connect(f); f.connect(g); g.connect(S.g.perc); tidy(n, [n, f, g]);
+    }
+    function snare(t, v, dest, body = true) {
+      const end = t + 0.18;
+      if (!room(t, end, body ? 2 : 1, v > 0.25)) return;
+      const n = nsrc(t, end), f = flt('bandpass', 1900, 0.8), g = G(0), nodes = [n, f, g];
+      hit(g.gain, t, 0.002, 0.35 * v, 0.13);
+      n.connect(f); f.connect(g); g.connect(dest);
+      if (body) {
+        const o = osc('triangle', 210, t, t + 0.1), og = G(0);
+        o.frequency.setValueAtTime(210, t); o.frequency.exponentialRampToValueAtTime(160, t + 0.08);
+        hit(og.gain, t, 0.002, 0.15 * v, 0.07); o.connect(og); og.connect(dest); nodes.push(o, og);
+      }
+      tidy(n, nodes);
+    }
+    function crash(t, v, dec = 1.8) {
+      const end = t + dec + 0.05;
+      if (!room(t, end, 1, true)) return;
+      const n = nsrc(t, end), f = flt('highpass', 4200, 0.6), g = G(0);
+      hit(g.gain, t, 0.004, 0.2 * v, dec);
+      n.connect(f); f.connect(g); g.connect(S.g.perc); tidy(n, [n, f, g]);
+    }
+    // ไรเซอร์: noise กวาดขึ้น (ฉาบย้อน) + ซอว์ไต่พิตช์
+    function riser(t, dur, v, dest) {
+      const end = t + dur + 0.04;
+      if (!room(t, end, 2, true)) return;
+      const n = nsrc(t, end), f = flt('bandpass', 500, 1.2), g = G(0);
+      f.frequency.setValueAtTime(500, t); f.frequency.exponentialRampToValueAtTime(6000, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16 * v, t + dur); g.gain.linearRampToValueAtTime(0, t + dur + 0.03);
+      const o = osc('sawtooth', 110, t, end), lp = flt('lowpass', 900, 1), og = G(0);
+      o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(440, t + dur);
+      og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.035 * v, t + dur); og.gain.linearRampToValueAtTime(0, t + dur + 0.03);
+      n.connect(f); f.connect(g); g.connect(dest); o.connect(lp); lp.connect(og); og.connect(dest);
+      tidy(n, [n, f, g, o, lp, og]);
+    }
+    // เบสสายต่ำ: ซอว์ + สแควร์ ผ่านโลว์พาสปิดตัว
+    function bass(t, m, dur, v) {
+      const end = t + dur + 0.08;
+      if (!room(t, end, 2, true)) return;
+      const f0 = mf(m), a = osc('sawtooth', f0, t, end), q = osc('square', f0, t, end, -7), lp = flt('lowpass', 1000, 1.2), g = G(0);
+      lp.frequency.setValueAtTime(1100, t); lp.frequency.exponentialRampToValueAtTime(320, t + dur);
+      sus(g.gain, t, 0.006, 0.16 * v, dur, 0.07);
+      a.connect(lp); q.connect(lp); lp.connect(g); g.connect(S.g.bass); tidy(a, [a, q, lp, g]);
+    }
+    // สายสั้น (spiccato)
+    function str(t, m, dur, v) {
+      const end = t + dur + 0.05;
+      if (!room(t, end, 2, v > 0.5)) return;
+      const f0 = mf(m), a = osc('sawtooth', f0, t, end, -6), q = osc('sawtooth', f0, t, end, 6), lp = flt('lowpass', 2800, 0.9), g = G(0);
+      lp.frequency.setValueAtTime(1500 + 1900 * Math.min(1, v), t); lp.frequency.exponentialRampToValueAtTime(700 + 450 * Math.min(1, v), t + dur);   // ลงหนัก = สว่างกว่า (คันชักกระแทก)
+      const p = g.gain;
+      p.setValueAtTime(0, t); p.linearRampToValueAtTime(0.07 * v, t + 0.005); p.exponentialRampToValueAtTime(0.025 * v, t + dur); p.linearRampToValueAtTime(0, t + dur + 0.04);
+      a.connect(lp); q.connect(lp); lp.connect(g); g.connect(S.g.str); tidy(a, [a, q, lp, g]);
+    }
+    // แพดอุ่น: ซอว์คู่ดีจูนต่อโน้ต ผ่านโลว์พาสร่วมหนึ่งตัวต่อคอร์ด
+    // ปล่อยสั้น (0.4 วิ) ให้คอร์ดเก่าไม่ค้างทับคอร์ดใหม่ (C# ทับ D, C ทับ C# = ขุ่น) — หางยาวปล่อยให้ห้องก้องทำ
+    function pad(t, notes, dur, v, att = 0.55, rel = 0.4) {
+      const end = t + Math.max(att, dur) + rel + 0.05;
+      if (!room(t, end, notes.length * 2, true)) return;
+      const lp = flt('lowpass', 700, 0.8), g = G(0), k = G(1), os = [];
+      lp.frequency.setValueAtTime(650, t); lp.frequency.linearRampToValueAtTime(1350, t + Math.max(att, dur * 0.55)); lp.frequency.linearRampToValueAtTime(800, t + Math.max(att, dur) + rel);
+      for (const m of notes) for (const d of [-9, 8]) { const o = osc('sawtooth', mf(m), t, end, d + (rnd() - 0.5) * 4); o.connect(lp); os.push(o); }
+      sus(g.gain, t, att, 0.045 * vjit(v, 0.04), dur, rel);
+      lp.connect(g); g.connect(k); k.connect(S.g.pad); tidy(os[0], os.concat([lp, g, k]));
+      keep({ k, os, end }, t);
+    }
+    // คอรัส "อา": ซอว์ + ไวบราโต ผ่านฟอร์แมนต์ 3 แถบร่วมต่อคอร์ด
+    function choir(t, notes, dur, v, att = 0.6, rel = 0.45) {
+      const end = t + Math.max(att, dur) + rel + 0.05;
+      if (!room(t, end, notes.length * 2 + 1, true)) return;
+      const mix = G(1), g = G(0), k = G(1), os = [], lfo = osc('sine', 5 + rnd() * 0.5, t, end), lg = G(9);
+      lfo.connect(lg);
+      const bands = [[700, 5, 1], [1150, 6, 0.55], [2600, 8, 0.22]].map(([f, q, l]) => { const bp = flt('bandpass', f, q), bl = G(l); bp.connect(bl); bl.connect(mix); return [bp, bl]; });
+      for (const m of notes) for (const d of [-11, 10]) { const o = osc('sawtooth', mf(m), t, end, d); lg.connect(o.detune); for (const [bp] of bands) o.connect(bp); os.push(o); }
+      os.push(lfo);
+      sus(g.gain, t, att, 0.35 * v, dur, rel);
+      mix.connect(g); g.connect(k); k.connect(S.g.choir);
+      tidy(os[0], os.concat([lg, mix, g, k], ...bands));
+      keep({ k, os, end }, t);
+    }
+    // แตร/ฮอร์น/ไวโอลินเลกาโต: ซอว์คู่ดีจูน ผ่านโลว์พาสกวาด (โทนเดียวกับ brass ของ sfx)
+    // สมจริงขึ้น: สกู๊ปพิตช์เข้าโน้ต (ต่ำ ~18 เซ็นต์ → ตรงใน 70 ms) + ไวบราโตหน่วงเวลาเฉพาะโน้ตยาว + ความแรงไม่เท่ากัน
+    function lead(t, m, dur, v, bright = 1700, dest = S.g.brass, att = 0.07) {
+      const end = t + Math.max(att, dur) + 0.2, long = dur >= 0.6;
+      if (!room(t, end, long ? 3 : 2, true)) return;
+      const f0 = mf(m), lp = flt('lowpass', 250, 1.6), g = G(0), k = G(1), a = osc('sawtooth', f0, t, end), q = osc('sawtooth', f0, t, end), nodes = [a, q, lp, g, k];
+      for (const [o, d] of [[a, -8], [q, 7]]) { o.detune.setValueAtTime(d - 18, t); o.detune.linearRampToValueAtTime(d, t + 0.07); }
+      if (long) {
+        const vib = osc('sine', 4.6 + rnd() * 0.8, t, end), vg = G(0);
+        vg.gain.setValueAtTime(0, t); vg.gain.setValueAtTime(0, t + 0.3); vg.gain.linearRampToValueAtTime(6, t + 0.75);
+        vib.connect(vg); vg.connect(a.detune); vg.connect(q.detune); nodes.push(vib, vg);
+      }
+      lp.frequency.setValueAtTime(240, t); lp.frequency.exponentialRampToValueAtTime(bright, t + att + 0.08); lp.frequency.exponentialRampToValueAtTime(bright * 0.55, t + dur + 0.15);
+      const p = g.gain, pk = 0.07 * vjit(v, 0.07);
+      p.setValueAtTime(0, t); p.linearRampToValueAtTime(pk, t + att); p.linearRampToValueAtTime(pk * 0.8, t + Math.max(att, dur)); p.linearRampToValueAtTime(0, t + Math.max(att, dur) + 0.18);
+      a.connect(lp); q.connect(lp); lp.connect(g); g.connect(k); k.connect(dest); tidy(a, nodes);
+      keep({ k, os: nodes.filter(n => n.stop), end }, t);
+    }
+    // ห้อง Asus4→A: เสียงร่วม (E, A) ลากทั้งห้อง · เสียงเคลื่อน D4 ครึ่งแรก → C#4 ครึ่งหลัง (ปล่อย D สั้นให้ไม่ทับ C#)
+    // เรียกที่ช่อง 0 (half = 0) และช่อง 8 (half = 1) — จองทีละครึ่งห้อง ไม่จองล่วงหน้าไกล
+    function susBar(fn, t, notes, bar, v, half) {
+      if (half) { fn(t, [61], bar / 2, v * 1.05, 0.12, 0.4); return; }
+      fn(t, notes.filter(n => n !== 61), bar, v);
+      fn(t, [62], bar / 2, v, 0.45, 0.1);
+    }
+    // แตรกระแทกคอร์ด
+    function stab(t, notes, v, dur = 0.3) {
+      const end = t + dur + 0.08;
+      if (!room(t, end, notes.length * 2, true)) return;
+      const lp = flt('lowpass', 300, 2), g = G(0), os = [];
+      lp.frequency.setValueAtTime(300, t); lp.frequency.exponentialRampToValueAtTime(3000, t + 0.025); lp.frequency.exponentialRampToValueAtTime(600, t + dur);
+      for (const m of notes) for (const d of [-8, 7]) { const o = osc('sawtooth', mf(m), t, end, d); o.connect(lp); os.push(o); }
+      hit(g.gain, t, 0.01, 0.045 * v, dur);
+      lp.connect(g); g.connect(S.g.brass); tidy(os[0], os.concat([lp, g]));
+    }
+    function harp(t, m, v) {
+      const end = t + 1;
+      if (!room(t, end, 1, false)) return;
+      const o = osc('triangle', mf(m), t, end), g = G(0);
+      hit(g.gain, t, 0.002, 0.05 * v, 0.9); o.connect(g); g.connect(S.g.harp); tidy(o, [o, g]);
+    }
+    const stabNotes = (ch, sus) => { const r = bassRoot(ch) + 12; return [r, r + 7, r + 12 + (sus ? 5 : ch.m ? 3 : 4)]; };
+    // ทอมในฟิลมีระดับเสียงชัด (112–177 Hz) → ตั้งให้ตรงโน้ตในคอร์ดที่ใกล้ที่สุด (เดิมตก Eb/C ทับคอร์ด C/A)
+    function tom(ch, p) {
+      const m = 69 + 12 * Math.log2(118 * p / 440), r = Math.round(m), pcs = [ch.pc, (ch.pc + (ch.m ? 3 : 4)) % 12, (ch.pc + 7) % 12];
+      for (let d = 0; d <= 6; d++) for (const k of [r - d, r + d]) if (pcs.indexOf(((k % 12) + 12) % 12) >= 0) return mf(k) / 118;
+      return p;
+    }
+
+    /* ── level 0: battle ── */
+    function step0(t, bar, s, pass, fill) {
+      const ch = CH[FORM[0][bar]], sd = S.sd, r = bassRoot(ch), odd = pass & 1, sus = SUS[0][bar] && ch === CH.A;
+      const hj = () => t + (rnd() - 0.5) * 0.008, vj = v => v * (0.9 + rnd() * 0.2);
+      if (s === 0) {
+        if (sus) susBar(pad, t, ch.pad, sd * 16, 1.1, 0); else pad(t, ch.pad, sd * 16, bar >= 8 ? 1.1 : 1);
+        if (bar === 0 && pass > 0) crash(t, 0.5);
+        if (odd && bar >= 8) { if (sus) susBar(choir, t, ch.cho, sd * 16, 0.55, 0); else choir(t, ch.cho, sd * 16, 0.55); }
+        if (bar === 8 || bar === 12) { lead(t, r + 12, sd * 14, 0.45, 900, S.g.brass, 0.4); lead(t, r + 19, sd * 14, 0.35, 900, S.g.brass, 0.4); }
+      } else if (s === 8 && sus) { susBar(pad, t, ch.pad, sd * 16, 1.1, 1); if (odd) susBar(choir, t, ch.cho, sd * 16, 0.55, 1); }
+      const bp = (bar < 8 ? B0A : B0B)[s];
+      if (bp !== undefined) bass(hj(), r + bp, sd * 1.8, vjit((s === 0 || s === 8) ? 1 : 0.72));
+      // ท่อน B ครึ่งหลัง (ห้อง 13-16): สายต่ำเล่นเขบ็ต 1 ชั้นค่อย ๆ ดังขึ้น พาเข้าเทิร์นอะราวด์ — B สองครึ่งไม่ซ้ำกัน
+      if (bar >= 12 && !(s & 1)) { const k = ((bar - 12) * 16 + s) / 64; str(hj(), r + 12 + [0, 0, 12, 0, 7, 0, 12, 7][s >> 1], sd * 1.6, vjit(0.26 + 0.32 * k + (s === 0 || s === 8 ? 0.1 : 0))); }
+      if (!fill) {
+        let v = T0[s], p = 1;
+        if (odd && (s === 6 || s === 10)) v = 0.14;
+        if (bar === 7 && s >= 8) { v = [0.7, 0, 0.4, 0, 0.45, 0.5, 0.6, 0.75][s - 8]; p = tom(ch, 1 + (s - 8) * 0.03); }
+        else if (bar === 15 && s >= 8) {
+          if (s === 8) riser(t, sd * 8, 0.55, S.g.drum);
+          const k = (s - 8) / 7, pr = tom(ch, 1); taiko(t, 0.12 + 0.45 * k, pr); taiko(t + sd / 2, 0.1 + 0.45 * k, pr); v = 0;   // ทิมปานีรัวบนโน้ต A
+        } else if ((bar & 3) === 3 && s >= 12) { v = [0.3, 0.36, 0.44, 0.56][s - 12]; p = tom(ch, 1.3 - (s - 12) * 0.06); }
+        if (v) taiko(s ? hj() : t, vj(v), p);
+        if (s === 4 || s === 12) frame(hj(), vj(0.5));
+        else if (s === 10 || (odd && s === 2)) frame(hj(), vj(0.18));
+        if (!(s & 1)) shaker(hj(), vj((s & 3) === 2 ? 0.55 : 0.3));
+        else if (odd) shaker(hj(), vj(0.14));
+      }
+      const m = MEL0[bar * 16 + s];
+      if (m) {
+        lead(t, m[0], m[1] * sd, 1, 1600);
+        if (odd) lead(t, m[0] + 12, m[1] * sd, 0.16, 3000, S.g.str, 0.14);   // รอบสอง: ไวโอลินเลกาโตคู่แปด
+      }
+      if (odd && bar < 8 && !(s & 1)) { const arp = [ch.pad[0], ch.pad[1], ch.pad[2], ch.pad[1]]; harp(hj(), arp[(s >> 1) & 3] + 12, 0.6 + (s === 0 ? 0.3 : 0)); }
+    }
+
+    /* ── level 1: danger ── */
+    function step1(t, bar, s, pass, fill) {
+      const ch = CH[FORM[1][bar]], sd = S.sd, r = bassRoot(ch), sr = r + 12, odd = pass & 1, sus = SUS[1][bar] && ch === CH.A;
+      const hj = () => t + (rnd() - 0.5) * 0.006, vj = v => v * (0.9 + rnd() * 0.2);
+      if (s === 0) {
+        if ((bar === 0 && pass > 0) || bar === 8) crash(t, 0.6);
+        if (bar >= 4 || odd) { if (sus) susBar(choir, t, ch.cho, sd * 16, 1, 0); else choir(t, ch.cho, sd * 16, 1); }
+      } else if (s === 8 && sus && (bar >= 4 || odd)) susBar(choir, t, ch.cho, sd * 16, 1, 1);
+      const d = ((odd || bar >= 8) ? OST_B : OST_A)[s];
+      str(s ? hj() : t, sr + (d === 's' ? ch.six : d), sd * 0.95, vjit(ACC[s], 0.07));
+      if (!(s & 1)) bass(t, r + ((s & 3) === 2 ? 12 : 0), sd * 1.5, vjit((s & 3) === 0 ? 1 : 0.8, 0.06));
+      shaker(hj(), vj(s & 1 ? 0.35 : (s & 3) === 2 ? 0.8 : 0.55), 0.035);
+      if (!fill) {
+        let v = T1[s], p = 1;
+        if (odd && (s === 7 || s === 15)) v = 0.24;
+        if (bar >= 12 && (s & 3) === 2) v = 0.3;
+        if ((bar & 3) === 3 && s >= 8) { v = [0.4, 0.35, 0.5, 0.45, 0.6, 0.6, 0.75, 0.9][s - 8]; p = tom(ch, [1.4, 1.3, 1.2, 1.1, 1.25, 1.15, 1, 0.95][s - 8]); }
+        if (v) taiko(s ? hj() : t, vj(v), p);
+        if (bar >= 4 && (s === 4 || s === 12)) snare(hj(), 0.5, S.g.drum);
+        // สแนร์โรลไต่ขึ้นก่อนขึ้นท่อนใหม่ (ห้อง 8 ครึ่งหลัง · ห้อง 16 ทั้งห้อง)
+        if ((bar === 7 && s >= 8) || bar === 15) {
+          const k = bar === 15 ? s / 15 : (s - 8) / 7;
+          if (s === (bar === 15 ? 0 : 8)) riser(t, sd * (bar === 15 ? 16 : 8), 0.8, S.g.drum);
+          snare(t, 0.1 + 0.55 * k, S.g.drum, false);
+          if (k > 0.35) snare(t + sd / 2, 0.1 + 0.55 * k, S.g.drum, false);
+        }
+      }
+      const stabBar = (bar >= 4 && bar < 8) || bar >= 12;
+      if (s === 0 && (stabBar || bar === 8)) stab(t, stabNotes(ch, sus), 1, 0.35);           // ห้อง sus: แตรกระแทก D ไม่ใช่ C# (ไม่ชนคอรัส)
+      else if (stabBar && (bar & 1) && (s === 10 || s === 14)) stab(t, stabNotes(ch), vjit(0.7), 0.18);
+      const m = MEL1[bar * 16 + s];
+      if (m) {
+        lead(t, m[0], m[1] * sd, 1, 2400, S.g.brass, 0.04);
+        if (odd) lead(t, m[0] - 12, m[1] * sd, 0.6, 1500, S.g.brass, 0.05);
+      }
+    }
+
+    // ฟิลตอนเปลี่ยน level: ขึ้น = สแนร์โรลเร่ง + ไทโกะ · ลง = ทอมไล่ต่ำ · ทุกเสียงผ่าน p.bus เพื่อเงียบได้ทันทีถ้ายกเลิก
+    function fillStep(t, p) {
+      const sd = S.sd, i = p.len - p.left, k = (i + 1) / p.len, ch = CH[FORM[S.cur][S.bar]];
+      if (i === 0) riser(t, p.left * sd, p.level ? 1 : 0.5, p.bus);
+      if (p.level === 1) {
+        snare(t, 0.15 + 0.55 * k, p.bus, false);
+        if (k > 0.45) snare(t + sd / 2, 0.15 + 0.55 * k, p.bus, false);
+        if (!(i & 1) || p.left <= 2) taiko(t, 0.35 + 0.5 * k, tom(ch, 1.1), p.bus);
+      } else if (!(i & 1)) taiko(t, 0.3 + 0.35 * k, tom(ch, 1.5 - 0.5 * k), p.bus);
+    }
+    // ถึงจุดเปลี่ยน: แรงกระแทกเปิดท่อนใหม่
+    function arrive(t, lv) {
+      if (lv === 1) { taiko(t, 0.55, tom(CH.Dm, 0.75)); crash(t, 0.9); stab(t, [50, 57, 62, 65], 1, 0.6); }   // ไทโกะต่ำซ้อนตรงจังหวะเดียวกับไทโกะห้อง 1 (ห่าง 12 ms = แฟลม)
+      else crash(t, 0.45, 2.2);
+    }
+    // ปล่อยเสียงยาว (แพด/คอรัส/แตร) ของ level เดิมให้จางเร็วที่จุดเปลี่ยนพอดี ไม่ชนคอร์ด/เทมโปใหม่
+    // (จางผ่านเกน k ที่ไม่มี automation อื่น → ไม่มีค่ากระโดด ไม่ว่าเอนเวโลปจะอยู่ช่วงไหน)
+    function releaseHolds(ts, tau = 0.07) {
+      for (const h of S.hold) {
+        if (h.end <= ts) continue;
+        try {
+          h.k.gain.setValueAtTime(1, ts); h.k.gain.setTargetAtTime(0, ts, tau);
+          for (const o of h.os) o.stop(Math.min(h.end, ts + tau * 7));
+        } catch (e) { /* ข้ามได้ */ }
+      }
+      S.hold = [];
+    }
+    // เฟดหลัก: จำเส้นทางไว้เองแล้วตั้งค่าเริ่มให้ชัด — ไม่ใช้ cancelAndHoldAtTime เพราะ Chrome คืนค่าผิดเมื่อทางลาดก่อนหน้าจบไปแล้ว
+    // (วัดจริง: 1 → 0.6–0.76 กระโดดทันทีตอน stop() = เพลงวูบ + คลิก) · .value ก็อ่านไม่แม่นในบางเบราว์เซอร์
+    function fadeAt(now) { const f = S.fd; return now >= f.t1 ? f.v1 : now <= f.t0 ? f.v0 : f.v0 + (f.v1 - f.v0) * (now - f.t0) / (f.t1 - f.t0); }
+    function fadeTo(v, now, dur) {
+      const from = fadeAt(now), t1 = now + Math.max(0.02, dur);
+      for (const n of [S.g.fade, S.g.fadeW]) {
+        if (!n) continue;
+        const p = n.gain;
+        p.cancelScheduledValues(now); p.setValueAtTime(from, now); p.linearRampToValueAtTime(v, t1);
+      }
+      S.fd = { v0: from, v1: v, t0: now, t1 };
+    }
+    function cancelPend(now) {
+      const p = S.pend;
+      if (!p) return;
+      S.pend = null;
+      try { p.bus.gain.cancelScheduledValues(now); p.bus.gain.setTargetAtTime(0, now, 0.04); } catch (e) { /* ข้ามได้ */ }
+      S.fills.push({ bus: p.bus, until: now });
+    }
+    // รื้อสายเสียง: หยุดออสซิลเลเตอร์ของเสียงยาวที่ยังค้าง (ไม่ปล่อยให้กิน CPU ต่ออีกหลายวิ) · delay = รอเฟดสั้น ๆ ให้จบก่อนถอดสาย
+    function teardown(delay = 0) {
+      const g = S.g, now = c.currentTime;
+      for (const h of S.hold) for (const o of h.os) { try { o.stop(Math.max(now, Math.min(h.end, now + delay + 0.02))); } catch (e) { /* ข้ามได้ */ } }
+      const cut = () => { if (g) for (const n of [g.fade, g.fadeW]) { if (n) { try { n.disconnect(); } catch (e) { /* ข้ามได้ */ } } } };
+      if (delay > 0 && typeof setTimeout === 'function') setTimeout(cut, delay * 1000 + 60); else cut();
+      S.g = null; S.on = false; S.stopAt = null; S.pend = null; S.hold = []; S.act = []; S.fills = [];
+    }
+
+    // ── นาฬิกาจังหวะ: จองโน้ตทุก 16th ที่ตกก่อน horizon (เรียกซ้ำได้ ไม่จองซ้ำ) ──
+    function pump(horizon, now) {
+      if (!S.on) return;
+      if (S.stopAt !== null && now > S.stopAt + 0.3) { if (!offline) teardown(); return; }
+      for (let guard = 0; guard < 200000; guard++) {
+        const t = S.barT + S.st * S.sd;
+        if (t >= horizon || (S.stopAt !== null && t >= S.stopAt)) break;
+        if (S.pend && S.pend.left <= 0) { switchNow(t, now); continue; }
+        if (t >= now - LATE) {                   // เลยเวลาแล้ว = ข้าม (หลังแท็บค้าง ไม่ยิงโน้ตย้อนหลังเป็นกระจุก · เอนเวโลปย้อนหลัง = คลิก)
+          const p = S.pend && S.pend.left <= S.pend.len ? S.pend : null;
+          (S.cur ? step1 : step0)(t, S.bar, S.st, S.pass, p);
+          if (p) fillStep(t, p);
+        }
+        S.st++;
+        if (S.pend) S.pend.left--;
+        if (S.st >= 16) { S.st = 0; S.barT += 16 * S.sd; if (++S.bar >= 16) { S.bar = 0; S.pass++; } }
+      }
+    }
+    function switchNow(t, now) {
+      const p = S.pend;
+      S.pend = null;
+      releaseHolds(t);
+      S.cur = p.level; S.sd = sdOf(S.cur); S.barT = t; S.st = 0; S.bar = 0; S.pass = 0;
+      S.fills.push({ bus: p.bus, until: t });
+      if (S.stats.switches.length < 32) S.stats.switches.push([Math.round(t * 1000) / 1000, S.cur]);
+      if (t >= now - LATE) arrive(t, S.cur);
+    }
+    function request(lv, now) {
+      lv = lv ? 1 : 0;
+      S.lv = lv;
+      if (!S.on) { S.cur = lv; S.sd = sdOf(lv); return; }
+      if (S.stopAt !== null) return;             // กำลังจาง — ใช้ค่าใหม่ตอน start ครั้งหน้า
+      if (S.pend) { if (S.pend.level === lv) return; cancelPend(now); }
+      if (lv === S.cur) return;
+      if (!offline) S.fills = S.fills.filter(f => { if (now > f.until + 2) { try { f.bus.disconnect(); } catch (e) { /* ข้ามได้ */ } return false; } return true; });
+      // จุดเปลี่ยน: เส้นห้องถัดไปถ้าไม่เกิน ~1.35 วิ ไม่งั้นจังหวะถัดไป (เว้นอย่างน้อย 3 ช่อง 16th ไว้ให้ฟิล)
+      const s = S.st, kBar = 16 - s;
+      let k = (4 - s % 4) % 4;
+      while (k < 3) k += 4;
+      if (kBar >= 3 && kBar * S.sd <= 1.35) k = kBar;
+      const busG = G(1);
+      busG.connect(S.g.drum);
+      S.pend = { level: lv, left: k, len: Math.min(k, 8), bus: busG };
+    }
+    function start(lv, now, solo) {
+      lv = lv ? 1 : 0;
+      if (S.on && S.stopAt === null) return request(lv, now);
+      if (S.on) { S.stopAt = null; fadeTo(1, now, 1); return request(lv, now); }   // กำลังจางออก → ดึงกลับ
+      S.g = graph(solo); S.on = true; S.stopAt = null; S.pend = null; S.hold = []; S.act = []; S.fills = [];
+      S.lv = S.cur = lv; S.sd = sdOf(lv); S.bar = 0; S.st = 0; S.pass = 0; S.barT = now + 0.08;
+      for (const n of [S.g.fade, S.g.fadeW]) { if (n) { n.gain.setValueAtTime(0, now); n.gain.linearRampToValueAtTime(1, now + 2); } }
+      S.fd = { v0: 0, v1: 1, t0: now, t1: now + 2 };
+    }
+    function stop(fade, now) {
+      if (!S.on) return;
+      fade = Math.max(0, +fade || 0);
+      if (S.stopAt !== null && now + fade >= S.stopAt) return;
+      cancelPend(now);
+      S.stopAt = now + fade;
+      fadeTo(0, now, fade);
+    }
+    return {
+      ctx: c, start, stop, request, pump, stats: S.stats,
+      // ตัดทันที (บริบทหยุด/ปิด/เปลี่ยน) — เฟด 30 ms ก่อนถอดสาย กันเสียงคลิกถ้าบริบทยังเล่นอยู่
+      kill: () => { if (!S.on) return; if (S.g) fadeTo(0, c.currentTime, 0.03); teardown(c.state === 'running' ? 0.04 : 0); },
+      get active() { return S.on; },
+      get playing() { return S.on && S.stopAt === null; },
+      get level() { return S.lv; },
+    };
+  }
+
+  /* ── ตัวจับเวลา: Blob Worker ติ๊กทุก 50 ms · สำรองด้วย setInterval ถ้าสร้าง Worker ไม่ได้ ── */
+  let live = null, lv0 = 0, lastError = null, worker = null, iv = null, dog = null, lastTick = 0, ticks = 0, mode = 'idle';
+  const nowMs = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
+  function onTick() {
+    try {
+      lastTick = nowMs(); ticks++;
+      if (!live) { ticking(false); return; }
+      const c = live.ctx;
+      if (c.state === 'closed') { live.kill(); ticking(false); return; }
+      live.pump(c.currentTime + LOOK, c.currentTime);
+      if (!live.active) ticking(false);
+    } catch (e) { lastError = String(e && e.message || e); }
+  }
+  function useInterval() { if (!iv) iv = setInterval(onTick, TICK); mode = 'interval'; }
+  function ticking(on) {
+    if (!on) {
+      if (worker) { try { worker.postMessage(0); } catch (e) { /* ข้ามได้ */ } }
+      if (iv) { clearInterval(iv); iv = null; }
+      if (dog) { clearInterval(dog); dog = null; }
+      mode = 'idle';
+      return;
+    }
+    if (worker === null) {
+      try {
+        const url = URL.createObjectURL(new Blob(['var i=0;onmessage=function(e){clearInterval(i);if(e.data>0)i=setInterval(function(){postMessage(0)},e.data)}'], { type: 'text/javascript' }));
+        worker = new Worker(url);
+        let revoked = false;
+        worker.onmessage = () => { if (!revoked) { revoked = true; try { URL.revokeObjectURL(url); } catch (e) { /* ข้ามได้ */ } } onTick(); };
+        worker.onerror = () => { worker = false; useInterval(); };
+      } catch (e) { worker = false; }
+    }
+    if (worker) {
+      worker.postMessage(TICK); mode = 'worker';
+      // สุนัขเฝ้า: ถ้า Worker เงียบ (เช่นโดน CSP บล็อกแบบไม่แจ้ง) ให้ตัวจับเวลาหลักติ๊กแทน
+      if (!dog) dog = setInterval(() => { if (nowMs() - lastTick > 300) onTick(); }, 250);
+    } else useInterval();
+  }
+  function eng() {
+    const c = bus && bus.ctx;
+    if (!c || !c.createGain) return null;
+    if (!live || live.ctx !== c) { if (live) live.kill(); live = engine(bus, false); }
+    return live;
+  }
+  function safe(fn) { try { return fn(); } catch (e) { lastError = String(e && e.message || e); } }
+
+  /* ── ทดสอบแบบไม่ต้องฟัง: เรนเดอร์ลง OfflineAudioContext (บัสจำลองแบบเดียวกับเกม) แล้ววัดความดัง ── */
+  function testBus(oc) {
+    const comp = oc.createDynamicsCompressor();
+    comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 5; comp.attack.value = 0.003; comp.release.value = 0.3;
+    const master = oc.createGain(); master.gain.value = 0.8;
+    master.connect(comp); comp.connect(oc.destination);
+    const dry = oc.createGain(); dry.connect(master);
+    const len = Math.floor(oc.sampleRate * 3), ir = oc.createBuffer(2, len, oc.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4); }
+    const verb = oc.createConvolver(); verb.buffer = ir;
+    const wet = oc.createGain(); wet.gain.value = 0.9; verb.connect(wet); wet.connect(master);
+    return { ctx: oc, out: dry, verb, noise: null };
+  }
+  function measure(buf, tailFrom) {
+    const L = buf.getChannelData(0), R = buf.numberOfChannels > 1 ? buf.getChannelData(1) : L, n = L.length, sr = buf.sampleRate;
+    const win = Math.round(sr * 0.1), skip = Math.round(sr * 0.5), steady = Math.round(sr * 2.5), tail = tailFrom != null ? Math.round(sr * tailFrom) : n;
+    const a = Math.exp(-2 * Math.PI * 120 / sr);             // โลว์พาส 1 โพล 120 Hz วัดสัดส่วนย่านต่ำ
+    let peak = 0, peakAt = 0, sum = 0, clip = 0, wsum = 0, gaps = 0, run = 0, longest = 0, ssum = 0, tsum = 0, low = 0, yl = 0, yr = 0;
+    for (let i = 0; i < n; i++) {
+      const l = L[i], r = R[i], al = Math.abs(l), ar = Math.abs(r);
+      if (al > peak) { peak = al; peakAt = i; }
+      if (ar > peak) { peak = ar; peakAt = i; }
+      if (al >= 0.999) clip++;
+      if (ar >= 0.999) clip++;
+      const q = l * l + r * r;
+      sum += q; wsum += q;
+      if (i >= steady && i < tail) ssum += q;
+      if (i >= tail) tsum += q;
+      yl = (1 - a) * l + a * yl; yr = (1 - a) * r + a * yr; low += yl * yl + yr * yr;
+      if ((i + 1) % win === 0) {
+        const w = Math.sqrt(wsum / (2 * win));
+        wsum = 0;
+        if (i >= skip && i < tail && w < 0.003) { gaps += 0.1; run += 0.1; if (run > longest) longest = run; } else run = 0;
+      }
+    }
+    const r4 = x => Math.round(x * 10000) / 10000;
+    const res = { peak: r4(peak), rms: r4(Math.sqrt(sum / (2 * n))), clippedSamples: clip, silentGapsSec: r4(gaps), longestGapSec: r4(longest), rmsSteady: r4(Math.sqrt(ssum / Math.max(1, 2 * (Math.min(tail, n) - steady)))), lowBandShare: r4(low / Math.max(1e-12, sum)), peakAtSec: r4(peakAt / sr) };
+    if (tailFrom != null) res.tailRms = r4(Math.sqrt(tsum / Math.max(1, 2 * (n - tail))));
+    return res;
+  }
+  // opts (ทดสอบเท่านั้น): events = [[วินาที, 0|1|'stop'|'start'], …] · solo = ชื่อกลุ่ม · tailFrom = วัดความดังหางหลังวินาทีนี้ · dryOnly = ไม่ส่งเข้าฮอลล์
+  //   buffer = แนบ AudioBuffer ที่เรนเดอร์ในผลลัพธ์ · live = จองโน้ตทีละติ๊กระหว่างเรนเดอร์ (suspend/resume) เหมือนเล่นจริง → renderMs ≈ ภาระ CPU จริง (ปกติจองทั้งหมดก่อน = หนักกว่าจริงมาก)
+  async function renderOffline(seconds = 20, level = 0, opts = {}) {
+    try {
+      const OAC = typeof OfflineAudioContext !== 'undefined' ? OfflineAudioContext : (typeof webkitOfflineAudioContext !== 'undefined' ? webkitOfflineAudioContext : null);
+      if (!OAC) return { error: 'OfflineAudioContext unavailable' };
+      seconds = Math.max(1, +seconds || 20);
+      level = level ? 1 : 0;
+      const sr = 44100, oc = new OAC(2, Math.round(sr * seconds), sr), tb = testBus(oc);
+      if (opts && opts.dryOnly) tb.verb = null;
+      const e = engine(tb, true);
+      const ev = ((opts && opts.events) || []).slice().sort((x, y) => x[0] - y[0]);
+      e.start(level, 0, opts && opts.solo);
+      const tick = now => {
+        while (ev.length && ev[0][0] <= now) {
+          const x = ev.shift()[1];
+          if (x === 'stop') e.stop(1.5, now); else if (x === 'start') e.start(0, now); else e.request(x, now);
+        }
+        e.pump(now + LOOK, now);
+      };
+      if (opts && opts.live && oc.suspend) {
+        tick(0);
+        for (let i = 1; i * TICK / 1000 < seconds; i++) { const now = i * TICK / 1000; oc.suspend(now).then(() => { try { tick(now); } catch (x) { /* วัดต่อ */ } oc.resume(); }); }
+      } else for (let i = 0; i * TICK / 1000 <= seconds; i++) tick(i * TICK / 1000);   // จำลองติ๊ก 50 ms แบบซิงโครนัส (ไม่มีตัวจับเวลา)
+      const t0 = typeof performance !== 'undefined' ? performance.now() : 0, buf = await oc.startRendering();
+      const renderMs = typeof performance !== 'undefined' ? Math.round(performance.now() - t0) : null;
+      const res = Object.assign(measure(buf, opts && opts.tailFrom), { seconds, level, bpm: BPM[level], voices: e.stats.voices, dropped: e.stats.dropped, maxPolyphony: e.stats.maxAct, switches: e.stats.switches, renderMs });
+      if (opts && opts.buffer) res.buffer = buf;                          // ทดสอบ: ส่งเสียงดิบออกไปวิเคราะห์ต่อ
+      return res;
+    } catch (err) { return { error: String(err && err.message || err) }; }
+  }
+
+  return {
+    start(level = 0) {
+      safe(() => {
+        const e = eng();
+        if (!e) { lv0 = level ? 1 : 0; return; }
+        e.start(level, e.ctx.currentTime);
+        ticking(true);
+        onTick();
+      });
+    },
+    stop(fadeSec = 1.5) {
+      safe(() => {
+        if (!live || !live.active) return;
+        const c = live.ctx;
+        if (c.state !== 'running') { live.kill(); ticking(false); return; }   // บริบทหยุดอยู่ เวลาไม่เดิน → ตัดทันที
+        live.stop(fadeSec, c.currentTime);
+      });
+    },
+    setIntensity(level) {
+      safe(() => { if (live) live.request(level, live.ctx.currentTime); else lv0 = level ? 1 : 0; });
+    },
+    get playing() { return !!(live && live.playing); },
+    get level() { return live ? live.level : lv0; },
+    get lastError() { return lastError; },
+    get debug() { return { mode, ticks, lastError, stats: live ? Object.assign({}, live.stats) : null }; },
+    renderOffline,
+  };
+}
+// เปิดเพลงตอนเริ่มเกม · HP ฝ่ายใดต่ำกว่า 40 = เปลี่ยนเป็นเพลงเร้าใจ · จบเกม/ออกจากเกม = ค่อย ๆ หยุด · ปิดได้ที่ปุ่ม "เพลง" (ปิด "เสียง" = เงียบทั้งหมด)
+const BGM_LOW_HP = 40;
+const bgm = (() => {
+  let m = null, on = true, want = null;
+  try { on = localStorage.getItem('df-music') !== '0'; } catch (e) { /* ข้ามได้ */ }
+  const ensure = () => {
+    if (!m && typeof createMusic === 'function' && sfx.bus) { try { m = createMusic(sfx.bus); } catch (e) { m = null; } }
+    return m;
+  };
+  function sync() {
+    const mm = ensure();
+    if (!mm) return;
+    try {
+      if (on && sfx.on && want != null) { if (!mm.playing) mm.start(want); else if (mm.level !== want) mm.setIntensity(want); }
+      else if (mm.playing) mm.stop(1.4);
+    } catch (e) { /* เพลงพังต้องไม่ทำให้เกมพัง */ }
+  }
+  return {
+    play(level) { want = level; sync(); },
+    stop() { want = null; sync(); },
+    sync,
+    get level() { return want; },
+    get playing() { return !!(m && m.playing); },
+    get debug() { return m ? Object.assign({ playing: m.playing, level: m.level }, m.debug) : null; }, // ใช้ตอนทดสอบ
+    get on() { return on; },
+    set on(v) { on = v; try { localStorage.setItem('df-music', v ? '1' : '0'); } catch (e) { /* ข้ามได้ */ } sync(); },
   };
 })();
 
@@ -1242,12 +1944,12 @@ function addLog(html, cls = '') {
 // จดแอนิเมชันการ์ดเข้ามือ / เลเวลอัป (มือ BLUE รู้แค่จำนวน)
 function noteGain(s, res) {
   res.steps.forEach((st, k) => {
-    if (s === ME) {
+    if (s === ME || ui.mode === 'spec') { // ผู้ชม: มือทั้งสองฝ่ายอยู่ใน #hand
       if (st.got) ui.arrive.set(st.got.id, k);
       if (st.up) ui.lvups.set(st.up.id, k);
     } else if (st.got) ui.oppArriveOrders.push(k);
   });
-  if (s === OPP) ui.oppLvups += res.ups.length;
+  if (s === OPP && ui.mode !== 'spec') ui.oppLvups += res.ups.length;
 }
 function overflowText(s, res) {
   if (!res.ups.length && !res.lost) return '';
@@ -1373,12 +2075,13 @@ async function confirmPick() {
   await afterPicks(mine, theirs, mineIdx, ui.picks.map(p => p.how === 'over'));
 }
 // หลังเก็บครบทั้งสองฝ่าย: แอนิเมชันเข้ามือ → เฟส Action (ARCADE: บอทคว่ำการ์ดทันที · PVP: รออีกฝ่ายวางเอง)
-async function afterPicks(mine, theirs, mineIdx, overFlags) {
+async function afterPicks(mine, theirs, mineIdx, overFlags, theirIdx = null) {
   const g = ui.g, gid = ui.gid;
   if (mine) noteGain(ME, mine);
   noteGain(OPP, theirs);
-  // ไม่บอกว่าอีกฝ่ายเก็บใบไหน (กองกลางและบันทึกบอกแค่จำนวน)
-  addLog(`${tagOf(ME)} เก็บ ${mineIdx.map((i, k) => INFO[g.market[i].type].name + (overFlags[k] ? ' (มือเต็ม → สุ่มเลเวลอัป)' : '')).join(' · ')} · ${tagOf(OPP)} เก็บ ${theirs.steps.length} ใบ`);
+  // ผู้เล่น: ไม่บอกว่าอีกฝ่ายเก็บใบไหน (กองกลางและบันทึกบอกแค่จำนวน) · ผู้ชม: บอกทั้งสองฝ่าย
+  const pickedTxt = (idx, flags) => idx.map((i, k) => INFO[g.market[i].type].name + (flags[k] ? ' (มือเต็ม → สุ่มเลเวลอัป)' : '')).join(' · ') || 'ไม่ได้เก็บ';
+  addLog(`${tagOf(ME)} เก็บ ${pickedTxt(mineIdx, overFlags)} · ${tagOf(OPP)} เก็บ ${theirIdx ? pickedTxt(theirIdx, theirIdx.map((i, k) => k >= theirs.got.length)) : `${theirs.steps.length} ใบ`}`);
   if (mine) logOverflow(ME, mine);
   logOverflow(OPP, theirs);
   Object.assign(ui, { pickShown: true, undo: [] });
@@ -1387,13 +2090,14 @@ async function afterPicks(mine, theirs, mineIdx, overFlags) {
   gainFx({ [ME]: mine, [OPP]: theirs });
   document.querySelectorAll('#hand .hc').forEach(hc => { if (hc.querySelector('.c-pick')) hc.classList.add('picked-now'); });
   floatNote(ME, `เก็บ ${names(mineIdx.map(i => g.market[i]))}`, 'gain', 200);
+  if (theirIdx) floatNote(OPP, `เก็บ ${names(theirIdx.map(i => g.market[i]))}`, 'gain', 200); // ผู้ชม
   await wait(1200);
   if (gid !== ui.gid) return;
   g.market = [];
-  if (ui.mode === 'pvp') {
+  if (ui.mode === 'pvp' || ui.mode === 'spec') {
     Object.assign(ui, { phase: 'action', busy: false, undo: [] });
     addLog(`Action Phase · ต่างฝ่ายต่างวางการ์ดคว่ำ · เฟสละ ${PVP_SEC} วินาที`);
-    pvpPhaseStart('action');
+    if (ui.mode === 'pvp') pvpPhaseStart('action');
     render();
     return;
   }
@@ -1584,7 +2288,7 @@ function floatHp(s, o) {
 const hpDelta = (from, to) => `${from} → ${to} (${to - from >= 0 ? '+' : '−'}${Math.abs(to - from)})`;
 // ป้ายลอยข้างจำนวนการ์ดบนมือ (+จั่ว / −ทิ้ง / เลเวลอัป) — มือ BLUE ก็เห็นว่าเปลี่ยนแม้ไม่รู้ว่าเป็นใบอะไร
 function floatNote(s, text, kind, delay = 0) {
-  const meta = $(s === ME ? '#myMeta' : '#oppMeta');
+  const meta = $(ui.mode === 'spec' ? `#specMeta${s}` : s === ME ? '#myMeta' : '#oppMeta');
   if (!meta) return;
   setTimeout(() => {
     const f = document.createElement('span');
@@ -1606,7 +2310,8 @@ function gainFx(bySide) {
     ups += res.ups.length;
   }
   for (let k = 0; k < Math.min(got, 3); k++) sfx.play('draw', k * 90);
-  const top = !!(bySide[ME] && bySide[ME].ups.some(c => c.lv >= 3)); // เสียงใหญ่เฉพาะการ์ดเราขึ้น Lv3 — ไม่บอกเลเวลการ์ดอีกฝ่าย
+  const lv3 = s => !!(bySide[s] && bySide[s].ups.some(c => c.lv >= 3));
+  const top = ui.mode === 'spec' ? SIDES.some(lv3) : lv3(ME); // ผู้เล่น: เสียงใหญ่เฉพาะการ์ดเรา — ไม่บอกเลเวลการ์ดอีกฝ่าย
   if (ups) sfx.play(top ? 'levelup3' : 'levelup', 300);
 }
 /* ───────── การ์ดลอย: เข้ามือ (จั่ว/เก็บ/Dodge) · ออกจากมือ (ทิ้ง) · มือ → แผง CARD ORDER ─────────
@@ -1661,7 +2366,7 @@ function flyGains(bySide, pickIdx) {
     res.steps.forEach((st, k) => {
       if (st.lost) return;
       const from = rectOf(pickIdx ? $(`[data-mk="${pickIdx[s][k]}"] .card`) : deckEl());
-      if (s === ME) {
+      if (s === ME || ui.mode === 'spec') {
         const to = rectOf($(`#hand [data-cid="${(st.got || st.up).id}"]`));
         if (st.got) flyIn(cardHTML({ type: st.got.type, lv: st.got.lv }), from, to, k);
         else flyIn(lvTokenHTML, from, tokenRect(to), k);
@@ -1788,6 +2493,7 @@ async function runFight() {
     // 3) ทิ้ง / จั่ว / เลเวลอัป / เสีย HP เพราะมือว่าง
     if (applyCards(g, r)) {
       ui.dying = [...(r[OPP].broke ? r[OPP].broke.cards : []), ...(r[ME].paid ? r[ME].paid.cards : [])];
+      ui.dyingOpp = [...(r[ME].broke ? r[ME].broke.cards : []), ...(r[OPP].paid ? r[OPP].paid.cards : [])]; // ผู้ชมเห็นการ์ดที่อีกฝั่งทิ้งด้วย
       ui.oppDying = (r[ME].broke ? r[ME].broke.cards.length : 0) + (r[OPP].paid ? r[OPP].paid.cards.length : 0);
       for (const s of SIDES) if (r[s].drew) noteGain(s, r[s].drew);
       const pen = penaltyOf(r);
@@ -1822,7 +2528,7 @@ async function runFight() {
   addLog(`End Phase · HP ${tagOf('RED')} ${hpDelta(ui.hpStart.RED, g.p.RED.hp)} · ${tagOf('BLUE')} ${hpDelta(ui.hpStart.BLUE, g.p.BLUE.hp)}`);
   if (ui.winner) addLog(`Winner Phase · ${ui.winner === 'DRAW' ? 'เสมอ!' : `${tagOf(ui.winner)} WIN!`} — ${ui.winReason}`, 'sys');
   render();
-  if (ui.winner) sfx.play(ui.winner === ME ? 'win' : ui.winner === OPP ? 'lose' : 'levelup');
+  if (ui.winner) sfx.play(ui.winner === 'DRAW' ? 'levelup' : ui.mode === 'spec' || ui.winner === ME ? 'win' : 'lose');
 }
 async function koFx(v) {
   const el = $('#ko'), dbl = v.ko.length > 1, side = v.winner === 'DRAW' ? 'draw' : v.winner.toLowerCase();
@@ -1843,6 +2549,7 @@ async function nextRound() {
 }
 function toStart(screen = 'start') {
   ui.gid++; // ตัด async ที่ค้างอยู่ทั้งหมด
+  if (ui.mode === 'spec') specLeave();
   if (ui.mode === 'pvp' || net.mine.seat || net.mine.mid) pvpLeaveMatch(); // ออกจากห้อง/แมตช์ = ปล่อยที่นั่งให้คนอื่น
   ui.pvpStarting = null;
   Object.assign(ui, { screen, intro: false, phase: null, winner: null, busy: false, peek: false, drawer: null, hpShown: {}, ko: null });
@@ -1852,7 +2559,7 @@ function toStart(screen = 'start') {
 }
 let quitArmed = 0;
 function quit(btn) {
-  if (Date.now() - quitArmed < 3000) { quitArmed = 0; btn.textContent = 'ออกจากเกม'; toStart(ui.mode === 'pvp' ? 'pvp' : 'lobby'); return; }
+  if (Date.now() - quitArmed < 3000) { quitArmed = 0; btn.textContent = 'ออกจากเกม'; toStart(ui.mode === 'pvp' || ui.mode === 'spec' ? 'pvp' : 'lobby'); return; }
   quitArmed = Date.now();
   btn.textContent = 'กดอีกครั้งเพื่อออก';
   setTimeout(() => { btn.textContent = 'ออกจากเกม'; }, 3000);
@@ -1933,6 +2640,11 @@ function laneHTML(l, o = {}) {
 // ช่องในแผง CARD ORDER ของฝั่ง s
 function slotHTML(s, i) {
   const P = ui.g.p[s];
+  if (ui.mode === 'spec') {
+    if (!P.lanes) return ui.phase === 'action' ? '<div class="slot-empty wait">รอ…</div>' : '';
+    const st = P.lanes[i] ? P.lanes[i].ids.length : 0;
+    return laneHTML(P.lanes[i], { stack: st, cls: ui.slotArrive ? 'arrive' : '', style: ui.slotArrive ? `--d:${landAt(i)}ms` : '' });
+  }
   if (s === OPP) {
     // PVP: อีกฝ่ายยังไม่วาง → ช่องรอ (ไม่บอกอะไรนอกจากว่ายังไม่วาง)
     if (!P.lanes) return ui.mode === 'pvp' && ui.phase === 'action' ? '<div class="slot-empty wait">รอ…</div>' : '';
@@ -2038,19 +2750,22 @@ function marketHTML() {
   const g = ui.g;
   return `<div class="market">${g.market.map((c, i) => {
     // ใบที่เราเก็บแล้ว = สีเทามืดลง (เห็นเฉพาะของเรา) · ไม่มีป้ายว่าใครเก็บ และไม่บอกว่าอีกฝ่ายเก็บใบไหน
-    const mine = ui.pickShown ? (g.p[ME].picks || []).includes(i) : ui.picks.some(p => p.i === i);
-    const grab = !ui.pickShown && !mine && ui.picks.length < PICK_N;
-    const face = cardHTML({ type: c.type, lv: 1 }, { act: ui.pickShown ? '' : 'pick', data: i, cls: [grab ? 'draggable' : '', mine ? 'taken' : ''].filter(Boolean).join(' ') });
+    const spec = ui.mode === 'spec';
+    const mine = spec ? false : ui.pickShown ? (g.p[ME].picks || []).includes(i) : ui.picks.some(p => p.i === i);
+    const grab = !spec && !ui.pickShown && !mine && ui.picks.length < PICK_N;
+    const face = cardHTML({ type: c.type, lv: 1 }, { act: spec || ui.pickShown ? '' : 'pick', data: i, cls: [grab ? 'draggable' : '', mine ? 'taken' : ''].filter(Boolean).join(' ') });
+    const tags = spec && ui.pickShown ? SIDES.filter(s => (g.p[s].picks || []).includes(i)).map(s => `<span class="mk-tag ${s.toLowerCase()}">${s}</span>`).join('') : '';
     const d = Math.round(REVEAL_GAP * i * spdK());
     return `<div class="mk${ui.revealMarket ? ' reveal' : ''}" data-mk="${i}"${ui.revealMarket ? ` style="--d:${d}ms"` : ''}>${ui.revealMarket ? flipHTML(face, d) : face}
-      ${capHTML(c.type, 1)}</div>`;
+      ${capHTML(c.type, 1)}${tags ? `<div class="mk-tags">${tags}</div>` : ''}</div>`;
   }).join('')}</div>`;
 }
 const PHASES = [['draw', 'Draw'], ['pick', 'Pick up'], ['action', 'Action'], ['fight', 'Fight'], ['end', 'End']];
 function renderStrip() {
   const g = ui.g, cur = PHASES.findIndex(p => p[0] === ui.phase);
   $('#phases').innerHTML = PHASES.map(([, label], i) => `<span class="ph${i < cur ? ' done' : ''}${i === cur ? ' on' : ''}"${i === cur ? ' aria-current="step"' : ''}>${label}</span>`).join('');
-  $('#deckInfo').innerHTML = `<span class="deck-pile" id="deckPile" aria-hidden="true"><i></i><i></i><i></i></span><span>กองกลางเหลือ <b>${g.deck.length}</b> ใบ</span>`;
+  const mid = ui.pvp ? ui.pvp.mid : ui.spec ? ui.spec.mid : null, nw = mid ? net.peers.filter(p => p.presence && p.presence.watch === mid).length : 0;
+  $('#deckInfo').innerHTML = `<span class="deck-pile" id="deckPile" aria-hidden="true"><i></i><i></i><i></i></span><span>กองกลางเหลือ <b>${g.deck.length}</b> ใบ</span>${nw ? `<span class="watchers">👁 ผู้ชม ${nw}</span>` : ''}`;
 }
 function renderMain() {
   const g = ui.g;
@@ -2059,7 +2774,9 @@ function renderMain() {
     const n = drawCount(g.round);
     html = `<div class="msg"><div class="deck-big" id="deckBig">${backHTML()}</div><b>Draw Phase</b><span>RED และ BLUE จั่วคนละ ${n} ใบ${g.round === 1 ? ` (เฉพาะรอบแรก · รอบต่อไปจั่ว ${DRAW_N})` : ''} · มือเต็ม ${HAND_MAX} ใบแล้ว ใบที่เกินกลายเป็นเลเวลอัป</span></div>`;
   } else if (ui.phase === 'pick') html = marketHTML();
-  else if (ui.phase === 'action') {
+  else if (ui.phase === 'action' && ui.mode === 'spec') {
+    html = `<div class="msg"><b>Action Phase</b><span>ผู้เล่นกำลังวางการ์ดลงแผง CARD ORDER — แผงของทั้งสองฝ่ายเปิดให้ผู้ชมเห็นเมื่อกด FIGHT! ครบทั้งคู่</span><span>${specStatus()}</span></div>`;
+  } else if (ui.phase === 'action') {
     html = `<div class="msg"><b>Action Phase</b><span>แตะการ์ดเพื่อวางลงช่องว่างถัดไป หรือลากไปวางช่องที่ต้องการบนแผง CARD ORDER · ลากทับชนิดเดียวกันในแผง = เลเวลอัป · ลากทับต่างชนิด = สลับ (มือ ↔ แผง และในแผง) · ลากการ์ดบนมือทับกัน = สลับตำแหน่ง</span><span class="t-${OPP.toLowerCase()}">${ui.mode !== 'pvp' || g.p[OPP].lanes ? `${OPP} คว่ำการ์ดลงแผงแล้ว — จะรู้ว่ามีอะไรตอนเปิดปะทะ` : `รอ ${OPP} วางการ์ด…`}</span></div>`;
   } else html = clashHTML();
   $('#main').innerHTML = html;
@@ -2079,7 +2796,7 @@ function renderHud(s) {
   if (inGame) {
     const P = ui.g.p[s];
     // BLUE: คว่ำแล้วติดครบ 3 ดวงเสมอ ไม่บอกจำนวนการ์ดที่วาง
-    placed = s === OPP ? (P.lanes ? SLOT_N : 0) : ui.phase === 'action' && !P.lanes ? ui.place.length : stackCount(P.slots);
+    placed = ui.mode === 'spec' ? stackCount(P.slots) : s === OPP ? (P.lanes ? SLOT_N : 0) : ui.phase === 'action' && !P.lanes ? ui.place.length : stackCount(P.slots);
   }
   document.querySelectorAll(`.dot.${s.toLowerCase()}`).forEach((d, k) => d.classList.toggle('on', k < placed));
 }
@@ -2109,6 +2826,12 @@ function tweenNum(node, from, to, ms = 550) {
 // มือ BLUE: เห็นแค่หลังการ์ด ไม่รู้ว่าเป็นใบอะไรหรือเลเวลเท่าไร
 function renderOppHand() {
   const el = $('#oppHand .opp-hand'), n = Math.max(0, ui.g.p[OPP].hand.length - (ui.oppHidden || 0)); // PVP: วางไม่ครบ → โชว์เหมือนวางครบ จนจบรอบ
+  if (ui.mode === 'spec') { // ผู้ชม: มือ BLUE เปิดหงายอยู่ในพื้นที่มือด้านล่างแล้ว
+    el.innerHTML = '';
+    $('#oppMeta .meta-txt').textContent = `มือ ${OPP} ${n}/${HAND_MAX}`;
+    $('#oppStatus').textContent = '';
+    return;
+  }
   const orders = ui.oppArriveOrders, fresh = Math.min(orders.length, n), ups = Math.min(ui.oppLvups, n - fresh);
   let html = '';
   // ใบที่เพิ่งได้มาต่อท้ายขวาสุด (ใบที่มาหลังสุดอยู่ขวาสุด) เหมือนมือ RED
@@ -2136,8 +2859,21 @@ function renderOrders() {
     });
   }
 }
+// ผู้ชม: มือ RED (ซ้าย) และ BLUE (ขวา) เปิดหงาย แตะ/ลากไม่ได้
+function specHandHTML(s) {
+  const g = ui.g, dying = s === ME ? ui.dying : ui.dyingOpp || [], dyingIds = new Set(dying.map(c => c.id));
+  const cards = g.p[s].hand.concat(dying).sort((a, b) => (a.got || 0) - (b.got || 0) || a.id - b.id);
+  return `<div class="spec-hand side-${s.toLowerCase()}"><div class="hand-head"><b class="t-${s.toLowerCase()}">มือ ${s} · ${esc(ui.spec.nick[s])}</b><span class="hud-meta" id="specMeta${s}"><span class="meta-txt">${g.p[s].hand.length}/${HAND_MAX} ใบ</span></span></div>
+    <div class="hand-cards">${cards.length ? cards.map(c => {
+      const gone = dyingIds.has(c.id), up = ui.lvups.get(c.id), arr = ui.arrive.get(c.id);
+      const land = up != null ? landAt(up) : arr != null ? landAt(arr) : null;
+      const cls = gone ? 'leaving' : up != null ? 'lvup' : arr != null ? 'arrive' : '';
+      return `<div class="hc ${cls}"${land != null && !gone ? ` style="--d:${land}ms"` : ''}>${cardHTML({ type: c.type, lv: c.lv }, { cid: c.id, fresh: !gone && c.fresh >= g.round, picked: !gone && c.picked === g.round })}${capHTML(c.type, c.lv)}</div>`;
+    }).join('') : '<p class="hand-empty">มือว่าง</p>'}</div></div>`;
+}
 function renderHand() {
   const g = ui.g;
+  if (ui.mode === 'spec') { $('#hand').innerHTML = `<div class="spec-hands">${SIDES.map(specHandHTML).join('')}</div>`; return; }
   const placed = ui.phase === 'action' ? ui.place.map(pl => pl.id) : [];
   const dyingIds = new Set(ui.dying.map(c => c.id));
   const alive = g.p[ME].hand.filter(c => !placed.includes(c.id));
@@ -2161,14 +2897,22 @@ function renderHand() {
 }
 function renderControls() {
   const g = ui.g;
-  let hint = '', main = '', btns = '';
+  if (ui.mode === 'spec') {
+    $('#controls').classList.remove('has-clock');
+    $('#controls').innerHTML = `<div class="hint"><span class="spec-badge">OBSERVE</span>${specStatus()}</div>
+      <div class="btns-main">${ui.winner ? '<button type="button" class="btn primary cta" data-act="toPvp">กลับห้อง PVP</button>' : ''}</div>
+      <div class="btns">${ui.winner ? '<button type="button" class="btn ghost" data-act="unpeek">ดูผลแพ้ชนะ</button>' : '<button type="button" class="btn ghost" data-act="toPvp">ออกจากการชม</button>'}</div>`;
+    return;
+  }
+  let hint = '', main = '', btns = '', clock = '';
   if (ui.phase === 'draw') hint = 'กำลังจั่วการ์ด…';
   else if (ui.phase === 'pick') {
     if (ui.pickShown) hint = 'เก็บขึ้นมือแล้ว — ใบที่เก็บมามีป้ายแดง "เก็บ" บนมือ';
     else {
       const n = ui.picks.length, full = g.p[ME].hand.length >= HAND_MAX;
       hint = n < PICK_N
-        ? `แตะหรือลากการ์ดกองกลางเข้ามือ (${n}/${PICK_N}) · แตะ/ลากใบที่มีป้าย "เก็บ" กลับกองกลางได้ · ลากการ์ดบนมือทับกัน = สลับตำแหน่ง${full ? ` · มือเต็ม ${HAND_MAX} แล้ว เก็บ = สุ่มเลเวลอัปตอนกด PICK UP (เหมือนจั่ว)` : ''}`
+        ? (full ? `แตะ/ลากการ์ดกองกลางเข้ามือ (${n}/${PICK_N}) · มือเต็ม ${HAND_MAX} แล้ว เก็บ = สุ่มเลเวลอัปการ์ดบนมือตอนกด PICK UP (เหมือนจั่ว)`
+          : `แตะหรือลากการ์ดกองกลางเข้ามือ (${n}/${PICK_N}) · แตะ/ลากใบที่มีป้าย "เก็บ" กลับกองกลางได้ · ลากการ์ดบนมือทับกัน = สลับตำแหน่ง`)
         : 'เก็บครบแล้ว — กด PICK UP · อยากเปลี่ยน: แตะ/ลากใบที่มีป้าย "เก็บ" กลับกองกลาง';
       main = `<button type="button" class="btn primary cta" data-act="confirmPick"${n === PICK_N ? '' : ' disabled'}>PICK UP</button>`;
       btns = undoBtn();
@@ -2196,26 +2940,29 @@ function renderControls() {
       btns = '';
       main = `<button type="button" class="btn primary cta" disabled>${w === 'pick' ? 'PICK UP' : 'FIGHT!'} ✓</button>`;
     }
-    if (!w && ((ui.phase === 'pick' && !ui.pickShown) || (ui.phase === 'action' && !ui.busy))) hint = `<span class="pvp-timer" id="pvpTimer">⏱ ${pvpLeft()}</span>${hint}`;
+    if (!w && ((ui.phase === 'pick' && !ui.pickShown) || (ui.phase === 'action' && !ui.busy))) clock = pvpClockHTML();
     if (ui.phase === 'end') {
       const ready = ui.pvp.nextReady === `${g.round}n`;
       if (ready) main = '<button type="button" class="btn primary cta" disabled>NEXT ROUND ✓</button>';
       hint += ready ? ` · รอ ${OPP} พร้อมรอบถัดไป…` : ` · ไปรอบถัดไปอัตโนมัติใน <b id="pvpNext">${pvpNextLeft()}</b> วิ`;
     }
   }
-  $('#controls').innerHTML = `<div class="hint">${hint}</div><div class="btns-main">${main}</div><div class="btns">${btns}</div>`;
+  $('#controls').classList.toggle('has-clock', !!clock);
+  $('#controls').innerHTML = `<div class="hint">${hint}</div><div class="btns-main">${clock}${main}</div><div class="btns">${btns}</div>`;
 }
 function renderWinner() {
   const el = $('#winner'), w = ui.winner, g = ui.g;
   el.hidden = !w || ui.peek;
   if (el.hidden) return;
-  const line = `${w === ME ? 'คุณชนะ! ' : w === OPP ? `${ui.mode === 'pvp' ? esc((ui.pvp && ui.pvp.oppNick) || OPP) : `บอท ${OPP}`} ชนะ — ` : ''}${ui.winReason}`;
+  const line = ui.mode === 'spec'
+    ? `${w === 'DRAW' ? '' : `${esc(ui.spec.nick[w])} (${w}) ชนะ — `}${ui.winReason}`
+    : `${w === ME ? 'คุณชนะ! ' : w === OPP ? `${ui.mode === 'pvp' ? esc((ui.pvp && ui.pvp.oppNick) || OPP) : `บอท ${OPP}`} ชนะ — ` : ''}${ui.winReason}`;
   el.innerHTML = `<div class="win-card w-${w.toLowerCase()}" role="dialog" aria-modal="true" aria-labelledby="winTitle">
     <div class="win-eyebrow">WINNER PHASE</div>
     <div class="win-title" id="winTitle">${w === 'DRAW' ? 'DRAW' : `${w} WIN`}</div>
     <p>${line}</p>
     <div class="win-stats"><span class="t-red">RED ${g.p.RED.hp} HP</span><span class="t-blue">BLUE ${g.p.BLUE.hp} HP</span><span>${g.round} รอบ</span></div>
-    <div class="win-btns">${ui.mode === 'pvp' ? '<button type="button" class="btn primary big" data-act="toPvp">กลับห้อง PVP</button>' : '<button type="button" class="btn primary big" data-act="toLobby">กลับ LOBBY</button>'}<button type="button" class="btn ghost" data-act="peek">ดูกระดานรอบสุดท้าย</button></div>
+    <div class="win-btns">${ui.mode === 'pvp' || ui.mode === 'spec' ? '<button type="button" class="btn primary big" data-act="toPvp">กลับห้อง PVP</button>' : '<button type="button" class="btn primary big" data-act="toLobby">กลับ LOBBY</button>'}<button type="button" class="btn ghost" data-act="peek">ดูกระดานรอบสุดท้าย</button></div>
   </div>`;
 }
 function renderDrawer() {
@@ -2230,7 +2977,7 @@ function render() {
   $('#lobby').hidden = ui.screen !== 'lobby';
   $('#pvp').hidden = ui.screen !== 'pvp';
   if (ui.screen === 'pvp') renderPvp();
-  const who = s => (s === ME ? 'คุณ' : ui.mode === 'pvp' ? (ui.pvp && ui.pvp.oppNick) || 'ผู้เล่น' : 'บอท');
+  const who = s => (ui.mode === 'spec' ? ui.spec.nick[s] : s === ME ? 'คุณ' : ui.mode === 'pvp' ? (ui.pvp && ui.pvp.oppNick) || 'ผู้เล่น' : 'บอท');
   $('.tab.red small').textContent = inGame ? who('RED') : 'คุณ';
   $('.tab.blue small').textContent = inGame ? who('BLUE') : 'บอท';
   $('#world').classList.toggle('is-game', inGame);
@@ -2243,8 +2990,11 @@ function render() {
   if (inGame && !ui.intro) { renderStrip(); renderOppHand(); renderMain(); renderHand(); renderControls(); renderWinner(); }
   else $('#winner').hidden = true;
   renderDrawer();
+  // เพลง: เล่นระหว่างเกม (หลังฉากเปิด) จนมีผู้ชนะ · HP ใครต่ำกว่า 40 = เพลงเร้าใจ
+  if (inGame && !ui.intro && !ui.winner && ui.g) bgm.play(Math.min(ui.g.p.RED.hp, ui.g.p.BLUE.hp) < BGM_LOW_HP ? 1 : 0);
+  else if (bgm.level != null) bgm.stop();
   // เอฟเฟกต์ใช้ครั้งเดียว — render ครั้งต่อไปจะไม่เล่นซ้ำ
-  Object.assign(ui, { fx: null, hit: {}, dying: [], oppArriveOrders: [], oppLvups: 0, oppDying: 0, justPlaced: null, slotArrive: false, revealMarket: false });
+  Object.assign(ui, { fx: null, hit: {}, dying: [], dyingOpp: [], oppArriveOrders: [], oppLvups: 0, oppDying: 0, justPlaced: null, slotArrive: false, revealMarket: false });
   ui.arrive = new Map();
   ui.lvups = new Map();
 }
@@ -2281,8 +3031,10 @@ document.addEventListener('click', e => {
   sfx.unlock(); // เบราว์เซอร์ยอมให้เล่นเสียงหลังผู้ใช้คลิกเท่านั้น
   const t = e.target.closest('[data-act]');
   if (!t || t.disabled) return;
+  if (ui.mode === 'spec' && SPEC_BLOCKED.has(t.dataset.act)) return; // ผู้ชมแตะการ์ด/ปุ่มเล่นไม่ได้
   const i = Number(t.dataset.i);
   switch (t.dataset.act) {
+    case 'watch': specStart(); break;
     case 'start': if (ROOM.label && !ON_CLAUDE) pvpOpen(); else { ui.screen = 'lobby'; render(); } break; // ลิงก์ห้องส่วนตัว → เข้าห้อง PVP เลย
     case 'copyRoom': {
       const url = `${location.origin}${location.pathname}?room=${encodeURIComponent(ROOM.label)}`;
@@ -2361,8 +3113,9 @@ document.addEventListener('keydown', e => {
    lockstep: สองเครื่องรันเอนจินเดียวกันด้วย seed เดียวกัน ส่งกันแค่ "การตัดสินใจ" ผ่าน presence
    (presence = ข้อมูลของเราที่ห้องส่งให้ทุกคน ส่งซ้ำให้คนที่เพิ่งเข้า และหายเองเมื่อเราออก)
    presence ของเรา: { v, nick, nonce, seat: 'RED'|'BLUE'|null, at, mid, over, inp: { '<รอบ>p': เก็บ, '<รอบ>a': วาง, '<รอบ>n': พร้อมรอบถัดไป } }
-   mid = รหัสแมตช์ (nonce + เวลากด READY ของทั้งสองฝั่ง → ไม่ซ้ำทุกครั้งที่นั่งใหม่) · over = mid ของแมตช์ที่เราตัดสินว่าอีกฝ่ายหลุด */
-const PVP_V = 2; // เปลี่ยนกติกา/เอนจินเมื่อไหร่ต้องเพิ่มเลขนี้ — คนละเวอร์ชันจะไม่ถูกจับคู่ (เล่นคนละกติกา = ผลเพี้ยน)
+   mid = รหัสแมตช์ (nonce + เวลากด READY ของทั้งสองฝั่ง → ไม่ซ้ำทุกครั้งที่นั่งใหม่) · over = mid ของแมตช์ที่เราตัดสินว่าอีกฝ่ายหลุด
+   inp เก็บทั้งแมตช์ (ผู้ชมที่เข้ากลางเกมย้อนคำนวณจากรอบ 1) · ผู้ชม: { watch: mid } อย่างเดียว ไม่ส่งอะไรให้ผู้เล่น */
+const PVP_V = 3; // เปลี่ยนกติกา/เอนจินเมื่อไหร่ต้องเพิ่มเลขนี้ — คนละเวอร์ชันจะไม่ถูกจับคู่ (เล่นคนละกติกา = ผลเพี้ยน)
 const PVP_SEC = 60, PVP_CUT = 30, PVP_GONE_MS = 8000, PVP_NEXT_MS = 10000, PVP_WAIT_MS = 90000;
 // ที่ไหนก็ได้นอก claude.ai (เช่น GitHub Pages): ส่ง presence ผ่าน MQTT broker สาธารณะ 3 เจ้าพร้อมกัน ไม่ต้องล็อกอิน · เจ้าไหนล่มก็ยังคุยกันได้
 // บน claude.ai ต่อข้างนอกไม่ได้ (CSP connect-src 'self' + webrtc block) → ใช้ room ของ claude ได้เฉพาะคนในองค์กรเดียวกัน
@@ -2412,12 +3165,12 @@ const loadScript = src => new Promise((ok, bad) => { const el = document.createE
 function cleanPresence(p) {
   const o = {}, str = (v, n) => (typeof v === 'string' && v ? v.slice(0, n) : null);
   if (Number.isFinite(p.v)) o.v = p.v;
-  for (const [k, n] of [['nick', 16], ['nonce', 16], ['mid', 96], ['over', 96]]) { const v = str(p[k], n); if (v) o[k] = v; }
+  for (const [k, n] of [['nick', 16], ['nonce', 16], ['mid', 96], ['over', 96], ['watch', 96]]) { const v = str(p[k], n); if (v) o[k] = v; }
   if (p.seat === 'RED' || p.seat === 'BLUE') o.seat = p.seat;
   if (Number.isFinite(p.at)) o.at = p.at;
   o.inp = {};
   if (p.inp && typeof p.inp === 'object' && !Array.isArray(p.inp)) {
-    for (const [k, v] of Object.entries(p.inp).slice(0, 8)) if (/^\d{1,3}[pan]$/.test(k) && v != null && (typeof v === 'object' || v === 1)) o.inp[k] = v;
+    for (const [k, v] of Object.entries(p.inp).slice(0, 200)) if (/^\d{1,3}[pan]$/.test(k) && v != null && (typeof v === 'object' || v === 1)) o.inp[k] = v;
   }
   return Object.freeze(o);
 }
@@ -2581,6 +3334,18 @@ function renderPvp() {
     if (ON_CLAUDE) st.innerHTML = `ห้องออนไลน์บน claude.ai ใช้ได้เฉพาะคนที่ล็อกอินและอยู่องค์กรเดียวกับเจ้าของเกม — เล่น PVP กับใครก็ได้ ไม่ต้องล็อกอิน ที่ ${pub}`;
     else st.textContent = 'เชื่อมต่อห้องออนไลน์ไม่ได้ — เช็กอินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่ (โหมด ARCADE ยังเล่นได้ตามปกติ)';
   } else st.textContent = net.kind === 'mqtt' && Date.now() - net.since > 10000 ? 'ยังต่อเซิร์ฟเวอร์ห้องไม่ติด — กำลังลองใหม่ (เช็กอินเทอร์เน็ต)…' : 'กำลังเชื่อมต่อห้องออนไลน์…';
+  // มีการแข่งอยู่ในห้องนี้ → ปุ่ม OBSERVE
+  const wt = $('#pvpWatch'), wm = net.state === 'on' && !ui.pvpStarting ? watchable() : null;
+  if (wt) {
+    wt.hidden = !wm;
+    if (wm) {
+      const nw = net.peers.filter(p => p.presence && p.presence.watch === wm.mid).length;
+      wt.innerHTML = `<button type="button" class="btn primary" data-act="watch">👁 OBSERVE · ดูการแข่งนี้</button><span>${esc(nickOf(wm.h.RED))} (RED) vs ${esc(nickOf(wm.h.BLUE))} (BLUE)${nw ? ` · ผู้ชม ${nw} คน` : ''}</span>`;
+    }
+  }
+  // นับถอยหลังก่อนเข้าเกม: ตัวเลขใหญ่แทนคำว่า VS
+  const vs = $('#pvp .seat-vs'), vsTxt = ui.pvpStarting ? String(ui.pvpStarting.left) : 'VS';
+  if (vs && vs.textContent !== vsTxt) { vs.textContent = vsTxt; vs.classList.remove('count'); if (ui.pvpStarting) { void vs.offsetWidth; vs.classList.add('count'); } }
   const alt = $('#pvpAlt'), hh = seatHolders(), full = hh.RED && hh.BLUE && !(net.mine.seat && (hh.RED.peer === net.me || hh.BLUE.peer === net.me));
   if (alt) {
     alt.hidden = net.state === 'off';
@@ -2612,7 +3377,8 @@ function pvpOnPeers() {
     pvpCheckStart();
     renderPvp();
   }
-  if (ui.screen === 'game' && ui.mode === 'pvp') { renderOppHand(); pvpTick(); }
+  if (ui.screen === 'game' && ui.mode === 'pvp') { renderOppHand(); renderStrip(); pvpTick(); }
+  if (ui.screen === 'game' && ui.mode === 'spec') { renderStrip(); specTick(); }
 }
 function pvpCheckStart() {
   if (ui.pvpStarting || net.state !== 'on') return;
@@ -2625,7 +3391,7 @@ function pvpCheckStart() {
   if (ui.pvpNoAck === mid) return; // นับถอยหลังกับคู่นี้แล้วอีกฝ่ายไม่ตอบ — รอให้ใครกด READY ใหม่ก่อน
   ui.pvpStarting = { left: 3, mid, me, oppPeer: opp.peer, extra: 0 };
   presence({ mid, inp: {} });
-  sfx.play('intro');
+  sfx.play('tickHi');
   const step = () => {
     const s = ui.pvpStarting;
     if (!s || ui.screen !== 'pvp') { ui.pvpStarting = null; return; }
@@ -2633,7 +3399,7 @@ function pvpCheckStart() {
     if (!o || o.peer !== s.oppPeer || !hh[s.me] || hh[s.me].peer !== net.me) { // อีกฝ่ายยกเลิกก่อนเริ่ม
       ui.pvpStarting = null; presence({ mid: null }); toast('อีกฝ่ายยกเลิก READY'); renderPvp(); return;
     }
-    if (s.left > 1) { s.left--; renderPvp(); setTimeout(step, 1000); return; }
+    if (s.left > 1) { s.left--; sfx.play('tickHi'); renderPvp(); setTimeout(step, 1000); return; }
     // เริ่มได้เมื่ออีกฝ่ายเข้าแมตช์เดียวกันแล้วจริง (mid ตรงกัน) · รอเพิ่มได้ไม่เกิน 6 วิ
     if (o.presence.mid !== s.mid) {
       if (++s.extra <= 12) { setTimeout(step, 500); return; }
@@ -2649,8 +3415,9 @@ const oppPeerNow = () => (ui.pvp ? net.peers.find(p => p.peer === ui.pvp.oppPeer
 const oppInput = key => { const o = oppPeerNow(); return o && o.presence && o.presence.mid === ui.pvp.mid && o.presence.inp ? o.presence.inp[key] : undefined; };
 function pvpSetInput(key, data) {
   const inp = { ...(net.mine.inp || {}), [key]: data };
+  // เก็บทั้งแมตช์ให้ผู้ชมที่เข้ากลางเกมย้อนดูได้ · presence ของ claude จำกัด 4 KiB → ยาวเกินค่อยตัดของเก่าสุด (ผู้ชมใหม่ย้อนไม่ได้แต่เกมไม่สะดุด)
   const keys = Object.keys(inp);
-  while (keys.length > 6) delete inp[keys.shift()]; // presence จำกัด 4 KiB — เก็บแค่ของล่าสุด
+  while (keys.length > 1 && JSON.stringify(inp).length > 2800) delete inp[keys.shift()];
   presence({ inp });
 }
 // เริ่มเฟส Pick up / Action: นาฬิกา 60 วิของเรา · จำมือก่อนเก็บไว้ (ตอนยืนยันจะเก็บใหม่แบบเดียวกันทั้งสองเครื่อง)
@@ -2664,6 +3431,9 @@ function pvpPhaseStart(kind) {
   pvpTick();
 }
 const pvpLeft = () => (ui.pvp && ui.pvp.deadline ? Math.max(0, Math.ceil((ui.pvp.deadline - Date.now()) / 1000)) : PVP_SEC);
+const clockCls = left => (left <= 10 ? ' danger' : left <= 20 ? ' warn' : '');
+const clockFrac = () => (ui.pvp && ui.pvp.deadline ? Math.max(0, Math.min(1, (ui.pvp.deadline - Date.now()) / (PVP_SEC * 1000))) : 1);
+const pvpClockHTML = () => { const left = pvpLeft(); return `<div class="pvp-clock${clockCls(left)}" id="pvpTimer" style="--p:${clockFrac().toFixed(3)}" role="timer" aria-label="เหลือเวลา ${left} วินาที"><b>${left}</b><small>SEC</small></div>`; };
 const pvpNextLeft = () => (ui.pvp && ui.pvp.endAt ? Math.max(0, Math.ceil((ui.pvp.endAt + PVP_NEXT_MS - Date.now()) / 1000)) : 10);
 const pvpWaiting = () => (ui.pvp && ui.pvp.submitted && ui.pvp.submitted === ui.pvp.phaseKey && ((ui.phase === 'pick' && !ui.pvp.applied) || (ui.phase === 'action' && !ui.pvp.fought)) ? ui.pvp.kind : null);
 // ลำดับการ์ดบนมือที่เราจัดไว้ (ใช้แค่หน้าตาของเรา): c<id> = ใบเดิม · p<k> = ใบที่เก็บมาใบที่ k
@@ -2682,7 +3452,7 @@ function pvpSubmit(kind, auto = false) {
   P.submitted = P.phaseKey;
   Object.assign(P, { waitSince: Date.now(), waitKey: P.phaseKey });
   P.myInput = data;
-  pvpSetInput(P.phaseKey, data);
+  pvpSetInput(P.phaseKey, kind === 'pick' ? { picks: data.picks } : data); // ลำดับมือ (order) ใช้แค่หน้าจอเรา ไม่ต้องส่ง
   if (kind === 'action') { doLock(g, ME, previewStacks()); ui.place = []; }
   Object.assign(ui, { busy: true, undo: [] });
   sfx.play(auto ? 'miss' : 'place');
@@ -2752,7 +3522,21 @@ function pvpTick() {
     else if (now - P.waitSince > PVP_WAIT_MS) { pvpForfeit('slow'); return; }
   }
   const tm = $('#pvpTimer');
-  if (tm) { const left = pvpLeft(); tm.textContent = `⏱ ${left}`; tm.classList.toggle('warn', left <= 10); }
+  if (tm) {
+    const left = pvpLeft(), b = tm.querySelector('b');
+    tm.style.setProperty('--p', clockFrac().toFixed(3));
+    if (b && b.textContent !== String(left)) {
+      b.textContent = left;
+      tm.className = `pvp-clock${clockCls(left)}`;
+      tm.setAttribute('aria-label', `เหลือเวลา ${left} วินาที`);
+      if (left <= 10) { void tm.offsetWidth; tm.classList.add('beat'); }
+    }
+    // เสียงนับเวลาเบา ๆ ทุกวินาที (เฉพาะตอนนาฬิกาเราเดินอยู่)
+    if (P.tickAt !== `${P.phaseKey}:${left}`) {
+      P.tickAt = `${P.phaseKey}:${left}`;
+      if (left > 0 && left < PVP_SEC) sfx.play(left <= 5 ? 'tickEnd' : left <= 10 ? 'tickHi' : 'tick');
+    }
+  }
   const nx = $('#pvpNext');
   if (nx) nx.textContent = pvpNextLeft();
   const st = $('#oppStatus');
@@ -2777,6 +3561,8 @@ function pvpTick() {
     if (P.submitted !== P.phaseKey) {
       P.deadline = Math.min(P.deadline, now + PVP_CUT * 1000);
       toast(`${OPP} กด ${inPick ? 'PICK UP' : 'FIGHT!'} แล้ว — เวลาของคุณเหลือไม่เกิน ${PVP_CUT} วินาที`);
+      const clk = $('#pvpTimer');
+      if (clk) { clk.classList.remove('cut'); void clk.offsetWidth; clk.classList.add('cut'); }
       sfx.play('flip');
     }
   }
@@ -2817,7 +3603,7 @@ function pvpTick() {
     }
   }
 }
-setInterval(pvpTick, 250);
+setInterval(() => { pvpTick(); specTick(); }, 250);
 function pvpReadyNext() {
   const P = ui.pvp;
   if (!P || ui.phase !== 'end' || ui.winner || ui.busy) return;
@@ -2844,6 +3630,144 @@ function pvpForfeit(why = 'gone') {
   P.forfeit = true;
   // ตั้งผู้ชนะก่อน แล้วค่อยบอกอีกฝ่าย (over = แมตช์นี้จบแล้ว ผลต้องตรงกันทั้งสองเครื่อง)
   pvpEnd(ME, why === 'slow' ? `${esc(P.oppNick || OPP)} ไม่ตอบสนองนานเกินไป — ชนะเพราะอีกฝ่ายหลุด` : `${esc(P.oppNick || OPP)} ออกจากเกม / หลุดการเชื่อมต่อ — ชนะเพราะอีกฝ่ายออก`, false, { over: P.mid });
+}
+/* ═════════ OBSERVE — ผู้ชม ═════════
+   คนดูไม่ส่งอะไรให้ผู้เล่น (presence แค่ { watch: mid }) · คำนวณเกมเองด้วย seed เดียวกับผู้เล่น แล้วใช้การตัดสินใจของทั้งสองฝ่ายจาก presence
+   เข้ากลางเกม = ย้อนคำนวณจากรอบ 1 (ผู้เล่นเก็บ inp ทั้งแมตช์) แล้วดูต่อสด · เห็นมือทั้งสองฝ่ายตลอด และแผง CARD ORDER ทันทีที่ผู้เล่นกด FIGHT! */
+const SPEC_BLOCKED = new Set(['pick', 'unpick', 'unpickOver', 'undo', 'confirmPick', 'place', 'unplace', 'clearPlace', 'confirmAction', 'nextRound']);
+const specPeer = s => (ui.spec ? net.peers.find(p => p.peer === ui.spec.peers[s]) : null);
+const specIn = (s, key) => (ui.spec ? ui.spec.cache[s][key] : undefined);
+const specBoth = key => specIn('RED', key) !== undefined && specIn('BLUE', key) !== undefined;
+// การแข่งที่ดูได้: สองที่นั่งมีคน อยู่แมตช์เดียวกัน และเราไม่ได้เป็นผู้เล่นเอง
+function watchable() {
+  const h = seatHolders();
+  // ไม่ให้ดูแมตช์ตัวเอง (รวมแท็บอื่นของบัญชีเดียวกันบน claude.ai = isMe) — กันแอบดูมืออีกฝ่าย
+  if (!h.RED || !h.BLUE || h.RED.peer === h.BLUE.peer || h.RED.peer === net.me || h.BLUE.peer === net.me || h.RED.isMe || h.BLUE.isMe) return null;
+  const mid = h.RED.presence.mid;
+  return mid && mid === h.BLUE.presence.mid ? { mid, h } : null;
+}
+// จำการตัดสินใจทุกอันที่เคยเห็น — ตอนจบแมตช์ผู้เล่นล้าง inp แต่ผู้ชมที่ดูช้ากว่ายังต้องใช้
+function specCache() {
+  const S = ui.spec;
+  for (const s of SIDES) {
+    const p = specPeer(s);
+    if (p && p.presence && p.presence.mid === S.mid && p.presence.inp) Object.assign(S.cache[s], p.presence.inp);
+  }
+}
+// ย้อนคำนวณแบบไม่มีแอนิเมชัน (ลำดับเดียวกับเครื่องผู้เล่นทุกขั้น: จั่ว → เปิดกองกลาง → เก็บ RED/BLUE → วาง → ปะทะทีละช่อง → เคลียร์กระดาน)
+function specReplay() {
+  const g = ui.g;
+  for (;;) {
+    doDraw(g);
+    doReveal(g);
+    const r = g.round;
+    if (!specBoth(`${r}p`)) return { stage: 'pick' };
+    for (const s of SIDES) for (const c of doPick(g, s, cleanPicks(specIn(s, `${r}p`).picks)).got) c.picked = r;
+    g.market = [];
+    if (!specBoth(`${r}a`)) return { stage: 'action' }; // แผงเปิดให้ผู้ชมเห็นเมื่อกด FIGHT! ครบทั้งคู่เท่านั้น
+    for (const s of SIDES) doLock(g, s, validLock(g, s, specIn(s, `${r}a`).slots));
+    const results = [];
+    let last = SLOT_N - 1;
+    for (let i = 0; i < SLOT_N; i++) { results[i] = clash(g, i); if (judge(g, i).winner) { last = i; break; } }
+    const verdict = judge(g, last);
+    if (verdict.winner || !specBoth(`${r}n`)) return { stage: 'end', results, last, verdict };
+    clearBoard(g);
+  }
+}
+function specStart() {
+  const w = watchable();
+  if (!w) { toast('ตอนนี้ยังไม่มีการแข่งให้ดู'); renderPvp(); return; }
+  const { mid, h } = w;
+  // ประวัติถูกตัดของเก่าทิ้ง (แมตช์ยาวมาก) → ย้อนคำนวณไม่ได้ ไม่เข้าโหมดดู
+  if (SIDES.some(s => { const i = h[s].presence.inp || {}; return Object.keys(i).length && !('1p' in i); })) { toast('ย้อนดูแมตช์นี้ไม่ได้ — ประวัติการเล่นไม่ครบ (แมตช์ยาวเกิน)'); renderPvp(); return; }
+  ui.gid++;
+  ui.pvpStarting = null;
+  presence({ seat: null, at: null, watch: mid });
+  Object.assign(ui, { mode: 'spec', pvp: null, spec: { mid, peers: { RED: h.RED.peer, BLUE: h.BLUE.peer }, nick: { RED: nickOf(h.RED), BLUE: nickOf(h.BLUE) }, cache: { RED: {}, BLUE: {} }, gone: 0, lockAt: 0, status: '', byOver: null } });
+  setSides('RED');
+  setRand(seededRand(hashStr(mid))); // seed เดียวกับผู้เล่น → การ์ดและผลทอยตรงกันทุกใบ
+  ui.g = newGame(addLog);
+  Object.assign(ui, { screen: 'game', intro: false, phase: null, winner: null, busy: false, peek: false, drawer: null, results: [], shown: -1, detail: null, pending: null, ko: null,
+    picks: [], place: [], undo: [], pickShown: false, oppHidden: 0 });
+  $('#log').innerHTML = '';
+  $('#ko').hidden = true;
+  $('#world').classList.remove('intro');
+  addLog(`OBSERVE · ${tagOf('RED')} ${esc(ui.spec.nick.RED)} ปะทะ ${tagOf('BLUE')} ${esc(ui.spec.nick.BLUE)} · ผู้ชมเห็นมือและแผงของทั้งสองฝ่าย`, 'sys');
+  specCache();
+  const st = specReplay(), g = ui.g;
+  ui.hpShown = { RED: g.p.RED.hp, BLUE: g.p.BLUE.hp };
+  ui.hpStart = { RED: g.p.RED.hp, BLUE: g.p.BLUE.hp };
+  if (st.stage === 'pick') Object.assign(ui, { phase: 'pick', revealMarket: true });
+  else if (st.stage === 'action') ui.phase = 'action';
+  else {
+    Object.assign(ui, { phase: 'end', results: st.results, shown: st.last, detail: st.last });
+    if (st.verdict.winner) Object.assign(ui, { winner: st.verdict.winner, winReason: st.verdict.reason, ko: { lane: st.last, sides: st.verdict.ko } });
+  }
+  addLog(g.round > 1 ? `ย้อนดูรอบ 1-${g.round - 1} แล้ว — ดูสดตั้งแต่ Round ${g.round}` : 'ดูสดตั้งแต่ Round 1', 'sys');
+  render();
+  sfx.play('intro');
+}
+function specStatus() {
+  const g = ui.g, r = g.round, S = ui.spec, who = s => `${tagOf(s)} ${esc(S.nick[s])}`;
+  if (ui.winner) return `จบการแข่ง · ${ui.winner === 'DRAW' ? 'เสมอ / ไม่มีผล' : `${tagOf(ui.winner)} WIN`}`;
+  if (ui.phase === 'pick' && !ui.pickShown) return SIDES.map(s => `${who(s)} ${specIn(s, `${r}p`) !== undefined ? '✓ PICK UP' : 'กำลังเลือก…'}`).join(' · ');
+  if (ui.phase === 'action') return SIDES.map(s => `${who(s)} ${specIn(s, `${r}a`) !== undefined ? '✓ FIGHT!' : 'กำลังวาง…'}`).join(' · ');
+  if (ui.phase === 'fight') return `กำลังเปิดช่อง ${Math.max(1, ui.shown + 1)} …`;
+  if (ui.phase === 'end') return `จบรอบ ${r} · รอผู้เล่นไปรอบถัดไป (${SIDES.map(s => `${s} ${specIn(s, `${r}n`) !== undefined ? '✓' : '…'}`).join(' · ')}) · แตะเลข 1-3 ดูช่องอื่น`;
+  return 'กำลังจั่วการ์ด…';
+}
+function specEnd(winner, reason) {
+  ui.gid++;
+  Object.assign(ui, { phase: 'end', busy: false, winner, winReason: reason });
+  addLog(`Winner Phase · ${winner === 'DRAW' ? 'ไม่มีผล' : `${tagOf(winner)} WIN!`} — ${reason}`, 'sys');
+  render();
+  sfx.play(winner === 'DRAW' ? 'levelup' : 'win');
+}
+// เดินเกมตามผู้เล่น (ทุก 250 ms และทุกครั้งที่ห้องเปลี่ยน)
+function specTick() {
+  const S = ui.spec;
+  if (ui.mode !== 'spec' || !S || ui.screen !== 'game' || !ui.g) return;
+  specCache();
+  const now = Date.now(), g = ui.g, r = g.round;
+  // ผู้เล่นตัดสินว่าอีกฝ่ายหลุด (over) → จบตามนั้น · ต่างคนต่างประกาศ → ไม่มีผล (เหมือนที่ผู้เล่นเห็น)
+  const over = SIDES.filter(s => { const p = specPeer(s); return p && p.presence && p.presence.over === S.mid; });
+  if (ui.winner && S.byOver && over.length > 1) { S.byOver = null; specEnd('DRAW', 'หลุดการเชื่อมต่อทั้งสองฝ่าย — แมตช์นี้ไม่มีผล'); return; }
+  if (!ui.winner) {
+    if (over.length) { S.byOver = over.length === 1; specEnd(over.length > 1 ? 'DRAW' : over[0], over.length > 1 ? 'หลุดการเชื่อมต่อทั้งสองฝ่าย — แมตช์นี้ไม่มีผล' : `${esc(S.nick[FOE[over[0]]])} (${FOE[over[0]]}) หลุดการเชื่อมต่อ — ${over[0]} ชนะ`); return; }
+    // ผู้เล่นออกทั้งคู่ → จบการชม — นับเฉพาะตอนที่ติดรอการตัดสินใจที่ยังไม่มี (ถ้ามีครบแล้วก็ดูต่อจนจบเอง)
+    const here = SIDES.some(s => { const p = specPeer(s); return p && p.presence && p.presence.mid === S.mid; });
+    const need = ui.phase === 'pick' && !ui.pickShown ? `${r}p` : ui.phase === 'action' ? `${r}a` : ui.phase === 'end' ? `${r}n` : null;
+    const stuck = !ui.busy && !!need && !specBoth(need);
+    if (here || net.state !== 'on' || !stuck) S.gone = 0;
+    else if (!S.gone) S.gone = now;
+    else if (now - S.gone > 15000) { specEnd('DRAW', 'ผู้เล่นออกจากห้องทั้งคู่ — จบการชม'); return; }
+  }
+  if (!ui.winner && !ui.busy) {
+    if (ui.phase === 'pick' && !ui.pickShown && specBoth(`${r}p`)) {
+      const res = {}, idx = {};
+      for (const s of SIDES) { idx[s] = cleanPicks(specIn(s, `${r}p`).picks); res[s] = doPick(g, s, idx[s]); for (const c of res[s].got) c.picked = r; }
+      const over = s => idx[s].map((i, k) => k >= res[s].got.length);
+      afterPicks(res.RED, res.BLUE, idx.RED, over('RED'), idx.BLUE);
+      return;
+    }
+    if (ui.phase === 'action') {
+      // ล็อกแผงเมื่อกด FIGHT! ครบทั้งคู่ — ถ้าเปิดให้ดูทีละฝั่ง ผู้เล่นที่ยังวางอยู่ขอให้เพื่อนช่วยดูแล้ววางสวนได้
+      let locked = false;
+      if (specBoth(`${r}a`)) for (const s of SIDES) if (!g.p[s].lanes) { doLock(g, s, validLock(g, s, specIn(s, `${r}a`).slots)); locked = true; }
+      if (locked) { S.lockAt = now; ui.slotArrive = true; sfx.play('place'); render(); return; }
+      if (g.p.RED.lanes && g.p.BLUE.lanes && now - S.lockAt > 900) { runFight(); return; } // ให้เห็นการ์ดลงแผงก่อนเปิดปะทะ
+    }
+    if (ui.phase === 'end' && specBoth(`${r}n`)) { nextRound(); return; }
+  }
+  const txt = specStatus();
+  if (txt !== S.status) { S.status = txt; renderControls(); if (ui.phase === 'action') renderMain(); }
+}
+function specLeave() {
+  presence({ watch: null });
+  ui.spec = null;
+  ui.mode = 'arcade';
+  setSides('RED');
+  setRand(null);
 }
 // ออกจากแมตช์ (จบเกม / กดออก): ล้างที่นั่งใน presence ให้คนอื่นใช้ต่อ
 function pvpLeaveMatch() {
@@ -2938,7 +3862,7 @@ function moveDrag(e) {
   markTargets(drag, e.clientX, e.clientY);
 }
 document.addEventListener('pointerdown', e => {
-  if (drag || press || e.button > 0 || ui.busy) return;
+  if (drag || press || e.button > 0 || ui.busy || ui.mode === 'spec') return;
   const pickOn = ui.phase === 'pick' && !ui.pickShown, actOn = ui.phase === 'action';
   if (!pickOn && !actOn) return;
   const hc = e.target.closest('#hand .card.draggable[data-cid]');
@@ -3002,6 +3926,12 @@ $('#sound').addEventListener('change', e => {
   sfx.on = e.target.checked;
   sfx.unlock();
   sfx.play('pick');
+  bgm.sync();
+});
+$('#music').checked = bgm.on;
+$('#music').addEventListener('change', e => {
+  sfx.unlock();
+  bgm.on = e.target.checked;
 });
 $('#fast').checked = ui.fast;
 applySpeed();
@@ -3020,7 +3950,7 @@ addEventListener('resize', fitStage);
 fitStage();
 // ลายนิ้วมือสถานะเกม (ทดสอบว่า PVP สองเครื่องตรงกัน) — ลำดับการ์ดในมือตามอาร์เรย์ (ส่วนที่กระทบผลสุ่ม)
 const stateHash = () => { const g = ui.g; return g ? JSON.stringify({ r: g.round, hp: SIDES.map(s => g.p[s].hp), h: SIDES.map(s => g.p[s].hand.map(c => `${c.id}${c.type[0]}${c.lv}`).join(',')), d: g.deck.length, m: g.market.map(c => c.type[0]).join('') }) : null; };
-window.__dreamfight = { stateHash, ui: () => ui, simulate, stackLanes, pickOne, swapHand, botAction, newGame, doLock, clash, effText, gain, forceDiscard, judge, sfx, calcSideHTML, discardText, drawCount, fitStage };
+window.__dreamfight = { bgm, stateHash, ui: () => ui, simulate, stackLanes, pickOne, swapHand, botAction, newGame, doLock, clash, effText, gain, forceDiscard, judge, sfx, calcSideHTML, discardText, drawCount, fitStage };
 render();
 })();
 </script>
