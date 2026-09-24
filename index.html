@@ -1125,6 +1125,39 @@ const sfx = (() => {
     if (!AC) return;
     ctx = new AC();
     ({ dry, verb, noiseBuf, mus: musicOut } = build(ctx));
+    loadBank();
+  }
+  /* เสียงจริงจากไฟล์ (Pixabay — assets/audio/manifest.json) โหลดหลังคลิกแรก · ไฟล์ไหนโหลด/ถอดรหัสไม่ได้ = ใช้เสียงสังเคราะห์เดิมแทนเฉพาะเสียงนั้น */
+  const AUDIO_MANIFEST = 'assets/audio/manifest.json';
+  let bank = {}, bankState = 'idle', musicBank = null;
+  const decode = ab => new Promise((ok, bad) => { try { const p = ctx.decodeAudioData(ab, ok, bad); if (p && p.then) p.then(ok, bad); } catch (e) { bad(e); } });
+  const fetchBuf = async file => decode(await (await fetch(file)).arrayBuffer());
+  async function loadBank() {
+    if (bankState !== 'idle' || !ctx) return;
+    bankState = 'loading';
+    try {
+      const man = await (await fetch(AUDIO_MANIFEST)).json();
+      await Promise.all(Object.entries(man.sfx || {}).map(async ([name, m]) => {
+        try { bank[name] = { buf: await fetchBuf(m.file), gain: Number.isFinite(m.gain) ? m.gain : 1 }; } catch (e) { /* ใช้เสียงสังเคราะห์ */ }
+      }));
+      bankState = 'ready';
+      // เพลงไฟล์ใหญ่ โหลดทีหลัง (เสียงเอฟเฟกต์ใช้ได้ก่อน) · ได้ครบทั้งสองเพลงถึงใช้ ไม่งั้นใช้เพลงสังเคราะห์
+      const mb = {};
+      await Promise.all(['calm', 'danger'].map(async k => {
+        const m = man.bgm && man.bgm[k];
+        if (!m) return;
+        try { mb[k] = { buf: await fetchBuf(m.file), gain: Number.isFinite(m.gain) ? m.gain : 1, loopStart: +m.loopStart || 0, loopEnd: +m.loopEnd || 0 }; } catch (e) { /* ใช้เพลงสังเคราะห์ */ }
+      }));
+      musicBank = mb.calm && mb.danger ? mb : false;
+    } catch (e) { bankState = 'failed'; musicBank = false; }
+    if (typeof bgm !== 'undefined') bgm.sync(); // เพลงพร้อมแล้ว → เริ่มเล่นถ้าอยู่ในเกม
+  }
+  function playSample(name) {
+    const b = bank[name], s = ctx.createBufferSource(), g = ctx.createGain();
+    s.buffer = b.buf; g.gain.value = b.gain;
+    s.connect(g); g.connect(dry);
+    s.start();
+    s.onended = () => { try { g.disconnect(); } catch (e) { /* ข้ามได้ */ } };
   }
   // ส่งเสียงออกทางตรง + เข้าห้องก้อง (send = ปริมาณก้อง)
   function route(node, send) {
@@ -1260,9 +1293,12 @@ const sfx = (() => {
     get lastError() { return lastError; },
     get on() { return on; },
     set on(v) { on = v; try { localStorage.setItem('df-sound', v ? '1' : '0'); } catch (e) { /* ข้ามได้ */ } },
+    get bankState() { return bankState; },
+    get samples() { return Object.keys(bank); },
+    get musicBank() { return musicBank === null && bankState !== 'failed' ? 'loading' : musicBank || null; },
     play(name, delay = 0) {
-      if (!on || !ctx || !SOUND[name]) return;
-      const run = () => { try { SOUND[name](); } catch (e) { lastError = `${name}: ${e.message}`; /* เสียงพังต้องไม่ทำให้เกมพัง */ } };
+      if (!on || !ctx || (!SOUND[name] && !bank[name])) return;
+      const run = () => { try { if (bank[name]) playSample(name); else SOUND[name](); } catch (e) { lastError = `${name}: ${e.message}`; /* เสียงพังต้องไม่ทำให้เกมพัง */ } };
       if (delay) setTimeout(run, ui.fast ? delay * 0.4 : delay); else run();
     },
   };
@@ -1905,12 +1941,47 @@ function createMusic(bus) {
   };
 }
 // เปิดเพลงตอนเริ่มเกม · HP ฝ่ายใดต่ำกว่า 40 = เปลี่ยนเป็นเพลงเร้าใจ · จบเกม/ออกจากเกม = ค่อย ๆ หยุด · ปิดได้ที่ปุ่ม "เพลง" (ปิด "เสียง" = เงียบทั้งหมด)
-const BGM_LOW_HP = 40;
+const BGM_LOW_HP = 40, BGM_XFADE = 1.6;
+// เพลงจากไฟล์: วนลูปช่วง loopStart–loopEnd (จุดต่อที่วิเคราะห์ไว้ให้ตรงห้องเพลง) · สลับเพลง = ครอสเฟด · เริ่มแมตช์ = เล่นจากต้นเพลง (อินโทร)
+function loopPlayer(bus, tracks) {
+  const c = bus.ctx, T = [tracks.calm, tracks.danger];
+  let cur = null, lv = 0, playing = false;
+  function voice(level, from, fade) {
+    const t = T[level], s = c.createBufferSource(), g = c.createGain(), now = c.currentTime;
+    s.buffer = t.buf;
+    if (t.loopEnd > t.loopStart) { s.loop = true; s.loopStart = t.loopStart; s.loopEnd = t.loopEnd; } else s.loop = true;
+    g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(t.gain, now + fade);
+    s.connect(g); g.connect(bus.out);
+    s.start(now, Math.min(from, Math.max(0, t.buf.duration - 0.1)));
+    return { s, g };
+  }
+  function release(v, fade) {
+    if (!v) return;
+    const now = c.currentTime;
+    try { v.g.gain.cancelScheduledValues(now); v.g.gain.setValueAtTime(v.g.gain.value, now); v.g.gain.linearRampToValueAtTime(0.0001, now + fade); v.s.stop(now + fade + 0.05); } catch (e) { /* ข้ามได้ */ }
+    v.s.onended = () => { try { v.g.disconnect(); } catch (e) { /* ข้ามได้ */ } };
+  }
+  return {
+    start(level = 0) { level = level ? 1 : 0; if (playing) return this.setIntensity(level); lv = level; playing = true; cur = voice(lv, 0, 1.2); },
+    setIntensity(level) {
+      level = level ? 1 : 0;
+      if (!playing || level === lv) { lv = level; return; }
+      release(cur, BGM_XFADE); lv = level; cur = voice(lv, T[lv].loopStart, BGM_XFADE); // เข้าเพลงใหม่ที่ต้นลูป (ข้ามอินโทรเงียบ ๆ)
+    },
+    stop(fade = 1.5) { if (!playing) return; playing = false; release(cur, fade); cur = null; },
+    get playing() { return playing; },
+    get level() { return lv; },
+    get debug() { return { mode: 'file', playing, level: lv }; },
+  };
+}
 const bgm = (() => {
   let m = null, on = true, want = null;
   try { on = localStorage.getItem('df-music') !== '0'; } catch (e) { /* ข้ามได้ */ }
   const ensure = () => {
-    if (!m && typeof createMusic === 'function' && sfx.bus) { try { m = createMusic(sfx.bus); } catch (e) { m = null; } }
+    if (m) return m;
+    const bus = sfx.bus, mb = sfx.musicBank;
+    if (!bus || mb === 'loading') return null; // รอเพลงโหลดเสร็จ (loadBank จะเรียก sync อีกที)
+    try { m = mb ? loopPlayer(bus, mb) : typeof createMusic === 'function' ? createMusic(bus) : null; } catch (e) { m = null; }
     return m;
   };
   function sync() {

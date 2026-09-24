@@ -1,0 +1,427 @@
+{
+ "license": "Pixabay Content License (https://pixabay.com/service/license-summary/): free to use, no attribution required. Sources and authors: assets/audio/CREDITS.md",
+ "sfx": {
+  "draw": {
+   "file": "assets/audio/sfx-draw.mp3",
+   "gain": 1.01,
+   "dur": 0.172,
+   "source": 522513,
+   "title": "Taking playing card 3",
+   "author": "OxidVideos",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-taking-playing-card-3-522513/"
+  },
+  "pick": {
+   "file": "assets/audio/sfx-pick.mp3",
+   "gain": 1.023,
+   "dur": 0.136,
+   "source": 522520,
+   "title": "Taking playing card",
+   "author": "OxidVideos",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-taking-playing-card-522520/"
+  },
+  "place": {
+   "file": "assets/audio/sfx-place.mp3",
+   "gain": 1.343,
+   "dur": 0.209,
+   "source": 522514,
+   "title": "Placing playing card",
+   "author": "OxidVideos",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-placing-playing-card-522514/"
+  },
+  "flip": {
+   "file": "assets/audio/sfx-flip.mp3",
+   "gain": 1.009,
+   "dur": 0.303,
+   "source": 91468,
+   "title": "flipCard",
+   "author": "freesound_community",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-flipcard-91468/"
+  },
+  "attack": {
+   "file": "assets/audio/sfx-attack.mp3",
+   "gain": 1.002,
+   "dur": 0.9,
+   "source": 185432,
+   "title": "Sword Slash and Swing",
+   "author": "DavidDumaisAudio",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-sword-slash-and-swing-185432/"
+  },
+  "ult": {
+   "file": "assets/audio/sfx-ult.mp3",
+   "gain": 1.002,
+   "dur": 2.29,
+   "source": 228342,
+   "title": "Elemental Magic Spell Impact Outgoing",
+   "author": "RescopicSound",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-elemental-magic-spell-impact-outgoing-228342/"
+  },
+  "defend": {
+   "file": "assets/audio/sfx-defend.mp3",
+   "gain": 0.999,
+   "dur": 0.99,
+   "source": 185433,
+   "title": "Sword Slash With Metal Shield Impact",
+   "author": "DavidDumaisAudio",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-sword-slash-with-metal-shield-impact-185433/"
+  },
+  "dodge": {
+   "file": "assets/audio/sfx-dodge.mp3",
+   "gain": 0.999,
+   "dur": 0.57,
+   "source": 405447,
+   "title": "Whoosh Effect",
+   "author": "DRAGON-STUDIO",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-whoosh-effect-405447/"
+  },
+  "miss": {
+   "file": "assets/audio/sfx-miss.mp3",
+   "gain": 1.003,
+   "dur": 0.22,
+   "source": 233442,
+   "title": "Near Miss Swing Whoosh 18",
+   "author": "floraphonic",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-near-miss-swing-whoosh-18-233442/"
+  },
+  "discard": {
+   "file": "assets/audio/sfx-discard.mp3",
+   "gain": 1.413,
+   "dur": 0.609,
+   "source": 383769,
+   "title": "Swoosh 015",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-swoosh-015-383769/",
+   "sources": [
+    {
+     "id": 383769,
+     "title": "Swoosh 015",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-swoosh-015-383769/"
+    },
+    {
+     "id": 522516,
+     "title": "Taking playing card - 2",
+     "author": "OxidVideos",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-taking-playing-card-2-522516/"
+    }
+   ]
+  },
+  "hurt": {
+   "file": "assets/audio/sfx-hurt.mp3",
+   "gain": 1.005,
+   "dur": 0.44,
+   "source": 192118,
+   "title": "Power Punch",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-power-punch-192118/"
+  },
+  "heal": {
+   "file": "assets/audio/sfx-heal.mp3",
+   "gain": 1.001,
+   "dur": 1.74,
+   "source": 229208,
+   "title": "Spell Casting",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-spell-casting-229208/"
+  },
+  "levelup3": {
+   "file": "assets/audio/sfx-levelup3.mp3",
+   "gain": 1.416,
+   "dur": 1.514,
+   "source": 143022,
+   "title": "Level Complete",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-level-complete-143022/",
+   "sources": [
+    {
+     "id": 177983,
+     "title": "Power Up Sparkle 1",
+     "author": "floraphonic",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-power-up-sparkle-1-177983/"
+    },
+    {
+     "id": 143022,
+     "title": "Level Complete",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-level-complete-143022/"
+    }
+   ]
+  },
+  "levelup": {
+   "file": "assets/audio/sfx-levelup.mp3",
+   "gain": 1.0,
+   "dur": 0.738,
+   "source": 199574,
+   "title": "Level Up 02",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-level-up-02-199574/"
+  },
+  "win": {
+   "file": "assets/audio/sfx-win.mp3",
+   "gain": 1.413,
+   "dur": 3.372,
+   "source": 152480,
+   "title": "Victory Fanfare",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/musical-victory-fanfare-152480/"
+  },
+  "lose": {
+   "file": "assets/audio/sfx-lose.mp3",
+   "gain": 1.413,
+   "dur": 1.457,
+   "source": 144746,
+   "title": "Fail Trumpet",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-fail-trumpet-144746/"
+  },
+  "intro": {
+   "file": "assets/audio/sfx-intro.mp3",
+   "gain": 1.416,
+   "dur": 4.0,
+   "source": 289802,
+   "title": "Riser Hit sfx 001",
+   "author": "AudioPapkin",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-riser-hit-sfx-001-289802/",
+   "sources": [
+    {
+     "id": 289802,
+     "title": "Riser Hit sfx 001",
+     "author": "AudioPapkin",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-riser-hit-sfx-001-289802/"
+    },
+    {
+     "id": 414575,
+     "title": "Cinematic Riser 03",
+     "author": "DRAGON-STUDIO",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-cinematic-riser-03-414575/"
+    },
+    {
+     "id": 91013,
+     "title": "gong",
+     "author": "freesound_community",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-gong-91013/"
+    }
+   ]
+  },
+  "ko": {
+   "file": "assets/audio/sfx-ko.mp3",
+   "gain": 0.999,
+   "dur": 2.13,
+   "source": 140236,
+   "title": "Punch",
+   "author": "Universfield",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-punch-140236/",
+   "sources": [
+    {
+     "id": 140236,
+     "title": "Punch",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-punch-140236/"
+    },
+    {
+     "id": 241729,
+     "title": "Sword Clash",
+     "author": "u_fe12rqkbth",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-sword-clash-241729/"
+    },
+    {
+     "id": 451863,
+     "title": "Suspenseful Boom",
+     "author": "DRAGON-STUDIO",
+     "page": "https://pixabay.com/sound-effects/suspenseful-boom-451863/"
+    }
+   ]
+  },
+  "ctrATK": {
+   "file": "assets/audio/sfx-ctrATK.mp3",
+   "gain": 0.995,
+   "dur": 2.28,
+   "source": 393845,
+   "title": "Sword Slice 2",
+   "author": "DRAGON-STUDIO",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-sword-slice-2-393845/",
+   "sources": [
+    {
+     "id": 393845,
+     "title": "Sword Slice 2",
+     "author": "DRAGON-STUDIO",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-sword-slice-2-393845/"
+    },
+    {
+     "id": 352702,
+     "title": "Cinematic Impact Hit",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-cinematic-impact-hit-352702/"
+    },
+    {
+     "id": 393839,
+     "title": "Violent Sword Slice",
+     "author": "DRAGON-STUDIO",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-violent-sword-slice-393839/"
+    }
+   ]
+  },
+  "ctrULT": {
+   "file": "assets/audio/sfx-ctrULT.mp3",
+   "gain": 0.999,
+   "dur": 2.5,
+   "source": 194553,
+   "title": "Small Rock Break",
+   "author": "LordSonny",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-small-rock-break-194553/",
+   "sources": [
+    {
+     "id": 376875,
+     "title": "Whoosh Cinematic",
+     "author": "DRAGON-STUDIO",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-whoosh-cinematic-376875/"
+    },
+    {
+     "id": 194553,
+     "title": "Small Rock Break",
+     "author": "LordSonny",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-small-rock-break-194553/"
+    },
+    {
+     "id": 352465,
+     "title": "Cinematic Impact Boom 05",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-cinematic-impact-boom-05-352465/"
+    }
+   ]
+  },
+  "ctrDEF": {
+   "file": "assets/audio/sfx-ctrDEF.mp3",
+   "gain": 1.003,
+   "dur": 1.63,
+   "source": 241729,
+   "title": "Sword Clash",
+   "author": "u_fe12rqkbth",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-sword-clash-241729/",
+   "sources": [
+    {
+     "id": 241729,
+     "title": "Sword Clash",
+     "author": "u_fe12rqkbth",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-sword-clash-241729/"
+    },
+    {
+     "id": 294435,
+     "title": "Cinematic Impact Boom 03",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-cinematic-impact-boom-03-294435/"
+    },
+    {
+     "id": 250240,
+     "title": "Magic Spell 02",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-magic-spell-02-250240/"
+    }
+   ]
+  },
+  "ctrDODGE": {
+   "file": "assets/audio/sfx-ctrDODGE.mp3",
+   "gain": 1.006,
+   "dur": 1.69,
+   "source": 174462,
+   "title": "Ambient Metal Whoosh 2",
+   "author": "floraphonic",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-ambient-metal-whoosh-2-174462/",
+   "sources": [
+    {
+     "id": 174462,
+     "title": "Ambient Metal Whoosh 2",
+     "author": "floraphonic",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-ambient-metal-whoosh-2-174462/"
+    },
+    {
+     "id": 244951,
+     "title": "Magic Twinkle",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-magic-twinkle-244951/"
+    },
+    {
+     "id": 179125,
+     "title": "Fireball Whoosh 1",
+     "author": "floraphonic",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-fireball-whoosh-1-179125/"
+    }
+   ]
+  },
+  "tick": {
+   "file": "assets/audio/sfx-tick.mp3",
+   "gain": 1.0,
+   "dur": 0.067,
+   "source": 76043,
+   "title": "Clock Tick (Tik Tak)",
+   "author": "freesound_community",
+   "page": "https://pixabay.com/sound-effects/household-clock-tick-tik-tak-76043/"
+  },
+  "tickHi": {
+   "file": "assets/audio/sfx-tickHi.mp3",
+   "gain": 1.006,
+   "dur": 0.056,
+   "source": 76043,
+   "title": "Clock Tick (Tik Tak)",
+   "author": "freesound_community",
+   "page": "https://pixabay.com/sound-effects/household-clock-tick-tik-tak-76043/"
+  },
+  "tickEnd": {
+   "file": "assets/audio/sfx-tickEnd.mp3",
+   "gain": 0.999,
+   "dur": 0.176,
+   "source": 76043,
+   "title": "Clock Tick (Tik Tak)",
+   "author": "freesound_community",
+   "page": "https://pixabay.com/sound-effects/household-clock-tick-tik-tak-76043/",
+   "sources": [
+    {
+     "id": 76043,
+     "title": "Clock Tick (Tik Tak)",
+     "author": "freesound_community",
+     "page": "https://pixabay.com/sound-effects/household-clock-tick-tik-tak-76043/"
+    },
+    {
+     "id": 383748,
+     "title": "Heartbeat - Single",
+     "author": "Universfield",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-heartbeat-single-383748/"
+    }
+   ]
+  },
+  "swap": {
+   "file": "assets/audio/sfx-swap.mp3",
+   "gain": 0.991,
+   "dur": 0.245,
+   "source": 46455,
+   "title": "Shuffle cards",
+   "author": "freesound_community",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-shuffle-cards-46455/"
+  }
+ },
+ "bgm": {
+  "calm": {
+   "file": "assets/audio/bgm-calm.mp3",
+   "gain": 1.0,
+   "loopStart": 55.92678,
+   "loopEnd": 81.52678,
+   "bpm": 75.0,
+   "dur": 82.027,
+   "source": 184140,
+   "title": "Fantasy Quest",
+   "author": "The_Mountain",
+   "page": "https://pixabay.com/music/main-title-fantasy-quest-184140/"
+  },
+  "danger": {
+   "file": "assets/audio/bgm-danger.mp3",
+   "gain": 1.0,
+   "loopStart": 62.320748,
+   "loopEnd": 89.74932,
+   "bpm": 105.0,
+   "dur": 90.249,
+   "source": 179466,
+   "title": "Trailer Intense",
+   "author": "The_Mountain",
+   "page": "https://pixabay.com/music/main-title-trailer-intense-179466/"
+  }
+ }
+}
