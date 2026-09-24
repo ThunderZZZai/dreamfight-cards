@@ -309,6 +309,7 @@ body:not(.portrait) #rotateHint{display:none}
 .pvp-status.on{color:var(--heal)} .pvp-status.off{color:var(--bad)}
 .pvp-status a,.pvp-alt a{color:var(--gold);font-weight:700;text-transform:none}
 .pvp-alt{margin:-4px 0 6px;font-size:18px;color:var(--muted)}
+.pvp-alt b{color:var(--ink);font-weight:600;text-transform:none;word-break:break-all} .pvp-alt .btn{min-width:0;min-height:36px;height:36px;padding:0 14px;font-size:16px;vertical-align:middle}
 .pvp-nick{display:flex;align-items:center;gap:12px;font-size:19px;color:var(--muted)}
 .pvp-nick input{width:260px;height:46px;padding:0 16px;border-radius:12px;border:1px solid var(--line-2);background:rgba(10,13,19,.8);color:var(--ink);font:inherit;font-size:20px}
 .pvp-seats{display:flex;align-items:center;gap:34px;margin:18px 0 8px}
@@ -2282,7 +2283,13 @@ document.addEventListener('click', e => {
   if (!t || t.disabled) return;
   const i = Number(t.dataset.i);
   switch (t.dataset.act) {
-    case 'start': ui.screen = 'lobby'; render(); break;
+    case 'start': if (ROOM.label && !ON_CLAUDE) pvpOpen(); else { ui.screen = 'lobby'; render(); } break; // ลิงก์ห้องส่วนตัว → เข้าห้อง PVP เลย
+    case 'copyRoom': {
+      const url = `${location.origin}${location.pathname}?room=${encodeURIComponent(ROOM.label)}`;
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject(new Error('no clipboard')))
+        .then(() => toast('คัดลอกลิงก์ห้องแล้ว — ส่งให้เพื่อนได้เลย'), () => toast('คัดลอกไม่ได้ — กดค้างที่ลิงก์เพื่อคัดลอกเอง'));
+      break;
+    }
     case 'arcade': startGame({ mode: 'arcade' }); break;
     case 'pvpLobby': pvpOpen(); break;
     case 'seat': pvpSeat(t.dataset.i); break;
@@ -2363,7 +2370,14 @@ const PUBLIC_URL = 'https://thunderzzzai.github.io/dreamfight-cards/';
 const MQTT_LIB = 'https://cdn.jsdelivr.net/npm/mqtt@5.16.0/dist/mqtt.min.js';
 const MQTT_BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
 const ON_CLAUDE = /(^|\.)(claudeusercontent\.com|claude\.ai)$/.test(location.hostname);
-const ROOM_NAME = (() => { const m = /[?&]room=([A-Za-z0-9_-]{1,24})(&|$)/.exec(location.search); return m ? m[1].toLowerCase() : 'lobby'; })(); // ?room=ชื่อ = ห้องส่วนตัว
+// ?room=ชื่อ = ห้องส่วนตัว (ชื่อไทย/ยาวได้ → แปลงเป็นรหัสหัวข้อที่ปลอดภัย) · localhost ไม่ใส่ ?room = ห้อง dev (ไม่ปนกับผู้เล่นจริง)
+const ROOM = (() => {
+  let raw = '';
+  try { raw = (new URLSearchParams(location.search).get('room') || '').trim().slice(0, 40); } catch (e) { raw = ''; }
+  if (!raw) return { id: /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'dev' : 'lobby', label: '' };
+  return { id: /^[a-z0-9_-]{1,24}$/i.test(raw) ? raw.toLowerCase() : 'h' + hashStr(raw).toString(36), label: raw };
+})();
+const PRIVATE_CODE = Math.random().toString(36).slice(2, 8); // รหัสห้องส่วนตัวใหม่ (ปุ่ม "สร้างห้องส่วนตัว")
 const esc = t => String(t).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 const net = { room: null, kind: null, state: 'idle', since: 0, me: null, peers: [], mine: {}, nonce: Math.random().toString(36).slice(2, 10) };
 // ห้องจำลองสำหรับทดสอบบนเครื่อง (localhost?mockroom) — ใช้ BroadcastChannel คุยกันระหว่างแท็บ
@@ -2386,7 +2400,7 @@ function mockRoom() {
   ch.postMessage({ peer: me, hello: true });
   last = snap();
   return {
-    presence: async patch => { for (const [k, v] of Object.entries(patch)) { if (v === null) delete mine[k]; else mine[k] = v; } send(); fire(); },
+    presence: async patch => { for (const [k, v] of Object.entries(patch)) { if (v === null) delete mine[k]; else mine[k] = v; } send(); queueMicrotask(fire); }, // แจ้งทีหลังเหมือนห้องจริง (กันเรียกซ้อนตัวเอง)
     peers: () => last,
     onPeers: h => { hs.add(h); setTimeout(() => h({ peers: last, joined: last, left: [], updated: [] }), 0); return () => hs.delete(h); },
     connected: () => true,
@@ -2407,21 +2421,23 @@ function cleanPresence(p) {
   }
   return Object.freeze(o);
 }
-// ห้องผ่าน MQTT (หน้าตาเดียวกับ room ของ claude): หัวข้อ dreamfight-cards/v1/<ห้อง>/p/<peer>
-// ข้อความ = { peer, s: ลำดับ, p: presence } · ส่งซ้ำทุก 2.5 วิ (heartbeat) · เงียบเกิน 12 วิ = ออกไปแล้ว · ออกจากหน้า / หลุด = { peer, bye }
+// ห้องผ่าน MQTT (หน้าตาเดียวกับ room ของ claude): หัวข้อ dreamfight-cards/v<PVP_V>/<ห้อง>/p/<peer> (คนละเวอร์ชัน = คนละห้อง)
+// ข้อความ = { peer, s: ลำดับ, p: presence } · ส่งซ้ำทุก 2.5 วิ (heartbeat จาก Worker — แท็บที่ถูกย่อก็ไม่ช้าลง) · เงียบเกิน 12 วิ = ออกไปแล้ว
+// ออกจากหน้า = { peer, bye: 2 } ลบทันที · หลุดจาก broker เจ้าเดียว (Last Will) = { peer, bye: 1 } แค่ "ใกล้หมดอายุ" — ยังได้ยินผ่านเจ้าอื่นก็อยู่ต่อ
 async function mqttRoom() {
   if (!window.mqtt) await loadScript(MQTT_LIB);
   const lib = window.mqtt;
   if (!lib || typeof lib.connect !== 'function') return null;
-  const me = 'q' + Math.random().toString(36).slice(2, 10), base = `dreamfight-cards/v1/${ROOM_NAME}/p/`;
-  const HEART_MS = 2500, EXPIRE_MS = 12000, MAX_PEERS = 200, MAX_BYTES = 8192;
-  let mine = {}, seq = 0, last = [], up = false;
-  const others = new Map(), hs = new Set(), cs = new Set();
+  const me = 'q' + Math.random().toString(36).slice(2, 10), base = `dreamfight-cards/v${PVP_V}/${ROOM.id}/p/`;
+  const HEART_MS = 2500, EXPIRE_MS = 12000, WILL_LEFT_MS = 4000, MAX_PEERS = 200, MAX_BYTES = 8192;
+  let mine = {}, seq = 0, last = [], up = false, lastSent = 0, queued = false;
+  const others = new Map(), tomb = new Map(), hs = new Set(), cs = new Set();
   const snap = () => Object.freeze([{ peer: me, by: null, isMe: true, sameTab: true, kind: 'viewer', presence: Object.freeze({ ...mine }), updatedAt: Date.now() },
     ...[...others].map(([peer, o]) => Object.freeze({ peer, by: null, isMe: false, sameTab: false, kind: 'viewer', presence: o.presence, updatedAt: o.at }))]);
   const fire = () => { last = snap(); hs.forEach(h => { try { h({ peers: last, joined: [], left: [], updated: [] }); } catch (e) { console.error(e); } }); };
-  const payload = () => JSON.stringify({ peer: me, s: seq, p: mine }), bye = JSON.stringify({ peer: me, bye: 1 });
-  const sendAll = msg => { for (const c of clients) if (c.connected) c.publish(base + me, msg, { qos: 0, retain: false }); };
+  const fireSoon = () => { if (queued) return; queued = true; queueMicrotask(() => { queued = false; fire(); }); }; // แจ้งทีหลังเหมือนห้องจริง
+  const payload = () => JSON.stringify({ peer: me, s: seq, p: mine }), will = JSON.stringify({ peer: me, bye: 1 }), bye = JSON.stringify({ peer: me, bye: 2 });
+  const sendAll = msg => { lastSent = Date.now(); for (const c of clients) if (c.connected) c.publish(base + me, msg, { qos: 0, retain: false }); };
   const setUp = () => { const now = clients.some(c => c.connected); if (now !== up) { up = now; cs.forEach(h => h(up)); } };
   const onMsg = (topic, buf) => {
     const id = topic.slice(base.length);
@@ -2429,8 +2445,12 @@ async function mqttRoom() {
     let d;
     try { d = JSON.parse(buf.toString()); } catch (e) { return; }
     if (!d || typeof d !== 'object' || d.peer !== id) return;
-    if (d.bye) { if (others.delete(id)) fire(); return; }
-    const sq = d.s, p = d.p, o = others.get(id), now = Date.now();
+    const o = others.get(id), now = Date.now();
+    if (now - lastSent > HEART_MS) sendAll(payload()); // มีข้อความเข้า = ส่ง heartbeat ไปด้วย (event นี้ไม่ถูกหน่วงเหมือน timer)
+    if (d.bye === 2) { if (others.delete(id)) fire(); tomb.set(id, now); return; } // ปิดหน้าจริง
+    if (d.bye) { if (o) o.seen = Math.min(o.seen, now - EXPIRE_MS + WILL_LEFT_MS); return; } // Will ของ broker เจ้าเดียว
+    if (tomb.has(id)) return; // สำเนาที่มาช้าหลังปิดหน้าไปแล้ว
+    const sq = d.s, p = d.p;
     if (!Number.isFinite(sq) || !p || typeof p !== 'object' || Array.isArray(p)) return;
     if (o && sq < o.s) return; // ของเก่าที่มาช้าจาก broker อื่น
     if (o) o.seen = now;
@@ -2440,8 +2460,9 @@ async function mqttRoom() {
     fire();
   };
   const clients = MQTT_BROKERS.map(url => {
-    const c = lib.connect(url, { clientId: `dfc_${me}_${Math.random().toString(36).slice(2, 6)}`, keepalive: 20, connectTimeout: 8000, reconnectPeriod: 3000,
-      clean: true, protocolVersion: 4, queueQoSZero: false, will: { topic: base + me, payload: bye, qos: 0, retain: false } });
+    // keepalive 8 วิ: เน็ตเราค้าง (socket ครึ่งเป็นครึ่งตาย) รู้ตัวใน ~12 วิ ก่อนนับว่าอีกฝ่ายหลุด · broker ปฏิเสธชั่วคราวก็ลองใหม่
+    const c = lib.connect(url, { clientId: `dfc_${me}_${Math.random().toString(36).slice(2, 6)}`, keepalive: 8, connectTimeout: 8000, reconnectPeriod: 3000,
+      reconnectOnConnackError: true, clean: true, protocolVersion: 4, queueQoSZero: false, will: { topic: base + me, payload: will, qos: 0, retain: false } });
     c.on('connect', () => { c.subscribe(base + '+', { qos: 0 }); c.publish(base + me, payload(), { qos: 0, retain: false }); setUp(); });
     c.on('close', setUp);
     c.on('offline', setUp);
@@ -2449,17 +2470,22 @@ async function mqttRoom() {
     c.on('message', onMsg);
     return c;
   });
-  setInterval(() => {
+  const beat = () => {
     sendAll(payload());
     const now = Date.now();
     let gone = false;
     for (const [id, o] of others) if (now - o.seen > EXPIRE_MS) { others.delete(id); gone = true; }
+    for (const [id, t] of tomb) if (now - t > EXPIRE_MS) tomb.delete(id);
     if (gone) fire();
-  }, HEART_MS);
+  };
+  // จังหวะ heartbeat จาก Worker: timer ในแท็บที่ถูกย่อนานเกิน 5 นาทีถูกหน่วงเหลือนาทีละครั้ง แต่ข้อความจาก Worker ไม่ถูกหน่วง
+  let tick = null;
+  try { tick = new Worker(URL.createObjectURL(new Blob([`setInterval(() => postMessage(0), ${HEART_MS})`], { type: 'text/javascript' }))); tick.onmessage = beat; } catch (e) { tick = null; }
+  if (!tick) setInterval(beat, HEART_MS);
   addEventListener('pagehide', () => sendAll(bye));
   last = snap();
   return {
-    presence: async patch => { for (const [k, v] of Object.entries(patch)) { if (v === null) delete mine[k]; else mine[k] = v; } seq++; sendAll(payload()); fire(); },
+    presence: async patch => { for (const [k, v] of Object.entries(patch)) { if (v === null) delete mine[k]; else mine[k] = v; } seq++; sendAll(payload()); fireSoon(); },
     peers: () => last,
     onPeers: h => { hs.add(h); setTimeout(() => h({ peers: last, joined: last, left: [], updated: [] }), 0); return () => hs.delete(h); },
     connected: () => up,
@@ -2488,7 +2514,19 @@ async function netInit() {
   net.room = room;
   const dead = ['revoked', 'not_granted', 'capability_disabled', 'capability_removed', 'transform_error'];
   const onErr = e => { if (dead.includes(e && e.code)) { net.state = 'off'; renderPvp(); } };
-  room.onConnection(c => { if (net.state !== 'off') net.state = c ? 'on' : 'connecting'; renderPvp(); }, onErr);
+  room.onConnection(c => {
+    if (net.state !== 'off') net.state = c ? 'on' : 'connecting';
+    if (!c) net.downAt = net.downAt || Date.now();
+    else {
+      // หลุดนานเกิน 12 วิ (เช่นปิดจอมือถือ) ขณะรอในห้อง: คนอื่นเห็นเราหายไปแล้ว → ปล่อยที่นั่ง ไม่เอาเวลา READY เก่ากลับมาแย่งที่
+      if (net.downAt && Date.now() - net.downAt > 12000 && ui.screen !== 'game' && !ui.pvpStarting && net.mine.seat) {
+        presence({ seat: null, at: null, mid: null });
+        toast('การเชื่อมต่อหลุดไปนาน — ปล่อยที่นั่งแล้ว กด READY ใหม่ได้เลย');
+      }
+      net.downAt = 0;
+    }
+    renderPvp();
+  }, onErr);
   room.onPeers(ch => {
     net.peers = ch.peers;
     const me = ch.peers.find(p => p.isMe && p.sameTab);
@@ -2517,7 +2555,7 @@ const nickOf = p => (p && p.presence && typeof p.presence.nick === 'string' && p
 function seatHolders() {
   const out = { RED: null, BLUE: null };
   for (const s of SIDES) {
-    const c = net.peers.filter(p => p.presence && p.presence.seat === s)
+    const c = net.peers.filter(p => p.presence && p.presence.v === PVP_V && p.presence.seat === s) // คนละเวอร์ชัน = ไม่นับว่านั่ง
       .sort((a, b) => ((a.presence.at || 0) - (b.presence.at || 0)) || (a.peer < b.peer ? -1 : a.peer > b.peer ? 1 : 0));
     out[s] = c[0] || null;
   }
@@ -2538,19 +2576,24 @@ function renderPvp() {
   const n = net.peers.length;
   st.className = `pvp-status ${net.state}`;
   const pub = `<a href="${PUBLIC_URL}" target="_blank" rel="noopener">${PUBLIC_URL.replace(/^https:\/\//, '').replace(/\/$/, '')} ↗</a>`;
-  if (net.state === 'on') st.textContent = `ออนไลน์ · ${ROOM_NAME === 'lobby' ? 'ในห้องนี้' : `ในห้อง "${ROOM_NAME}" `}ตอนนี้ ${n} คน${ui.pvpStarting ? ` · เริ่มเกมใน ${ui.pvpStarting.left}…` : ''}`;
+  if (net.state === 'on') st.textContent = `ออนไลน์ · ${ROOM.label ? `ในห้อง "${ROOM.label}" ` : 'ในห้องนี้'}ตอนนี้ ${n} คน${ui.pvpStarting ? ` · เริ่มเกมใน ${ui.pvpStarting.left}…` : ''}`;
   else if (net.state === 'off') {
     if (ON_CLAUDE) st.innerHTML = `ห้องออนไลน์บน claude.ai ใช้ได้เฉพาะคนที่ล็อกอินและอยู่องค์กรเดียวกับเจ้าของเกม — เล่น PVP กับใครก็ได้ ไม่ต้องล็อกอิน ที่ ${pub}`;
     else st.textContent = 'เชื่อมต่อห้องออนไลน์ไม่ได้ — เช็กอินเทอร์เน็ตแล้วเปิดหน้านี้ใหม่ (โหมด ARCADE ยังเล่นได้ตามปกติ)';
   } else st.textContent = net.kind === 'mqtt' && Date.now() - net.since > 10000 ? 'ยังต่อเซิร์ฟเวอร์ห้องไม่ติด — กำลังลองใหม่ (เช็กอินเทอร์เน็ต)…' : 'กำลังเชื่อมต่อห้องออนไลน์…';
-  const alt = $('#pvpAlt');
-  if (alt) { alt.hidden = !(ON_CLAUDE && net.state !== 'off'); if (!alt.hidden) alt.innerHTML = `ชวนเพื่อนที่ไม่มีบัญชี claude: เล่นที่ ${pub} (คนละห้องกับที่นี่)`; }
+  const alt = $('#pvpAlt'), hh = seatHolders(), full = hh.RED && hh.BLUE && !(net.mine.seat && (hh.RED.peer === net.me || hh.BLUE.peer === net.me));
+  if (alt) {
+    alt.hidden = net.state === 'off';
+    if (ON_CLAUDE) alt.innerHTML = `ชวนเพื่อนที่ไม่มีบัญชี claude: เล่นที่ ${pub} (คนละห้องกับที่นี่)`;
+    else if (ROOM.label) alt.innerHTML = `ห้องส่วนตัว — ส่งลิงก์นี้ให้เพื่อน: <b>${esc(location.origin + location.pathname)}?room=${esc(ROOM.label)}</b> <button type="button" class="btn ghost small" data-act="copyRoom">คัดลอกลิงก์</button> · <a href="${location.pathname}">กลับห้องรวม</a>`;
+    else alt.innerHTML = `${full ? 'ห้องรวมมีคนแข่งอยู่ — ' : 'อยากเล่นกับเพื่อนโดยไม่มีคนอื่นมาแทรก? '}<a href="${location.pathname}?room=${PRIVATE_CODE}">สร้างห้องส่วนตัว</a> แล้วส่งลิงก์ให้เพื่อน`;
+  }
   const h = seatHolders();
   for (const s of SIDES) {
     const el = $(`#seat${s}`), p = h[s], mine = p && p.peer === net.me, busy = p && p.presence.mid;
     el.classList.toggle('mine', !!mine);
     const who = !p ? '<div class="seat-who empty">ว่าง · รอผู้เล่น</div>'
-      : `<div class="seat-who">${mine ? 'คุณ' : esc(nickOf(p))}${p.presence.v !== PVP_V ? ' · เกมคนละเวอร์ชัน (ให้รีโหลดหน้า)' : busy ? ' · กำลังแข่ง' : ' · พร้อมแล้ว ✓'}</div>`;
+      : `<div class="seat-who">${mine ? 'คุณ' : esc(nickOf(p))}${busy ? ' · กำลังแข่ง' : ' · พร้อมแล้ว ✓'}</div>`;
     const btn = net.state !== 'on' ? `<button type="button" class="btn" disabled>${s} READY</button>`
       : mine ? `<button type="button" class="btn ghost" data-act="seat" data-i="${s}"${ui.pvpStarting ? ' disabled' : ''}>ยกเลิก</button>`
       : p ? '<button type="button" class="btn" disabled>มีคนแล้ว</button>'
@@ -2578,10 +2621,6 @@ function pvpCheckStart() {
   const me = h.RED.peer === net.me ? 'RED' : h.BLUE.peer === net.me ? 'BLUE' : null;
   if (!me) return;
   const opp = h[FOE[me]], mid = [h.RED.presence.nonce, h.RED.presence.at, h.BLUE.presence.nonce, h.BLUE.presence.at].join('.');
-  if (opp.presence.v !== PVP_V) { // คนละเวอร์ชัน → เล่นคนละกติกา ห้ามจับคู่
-    if (ui.pvpVerWarned !== opp.peer) { ui.pvpVerWarned = opp.peer; toast('อีกฝ่ายเปิดเกมคนละเวอร์ชัน — ให้ทั้งคู่รีโหลดหน้าแล้วกด READY ใหม่'); }
-    return;
-  }
   if (opp.presence.mid && opp.presence.mid !== mid) return; // อีกฝ่ายยังค้างเกมเก่า
   if (ui.pvpNoAck === mid) return; // นับถอยหลังกับคู่นี้แล้วอีกฝ่ายไม่ตอบ — รอให้ใครกด READY ใหม่ก่อน
   ui.pvpStarting = { left: 3, mid, me, oppPeer: opp.peer, extra: 0 };
@@ -2791,20 +2830,20 @@ function pvpReadyNext() {
   pvpTick();
 }
 // จบแมตช์นอกสนาม (อีกฝ่ายหลุด / เราหลุด): ตั้งผู้ชนะ + ปล่อยที่นั่ง
-function pvpEnd(winner, reason, keepGid = false) {
+function pvpEnd(winner, reason, keepGid = false, extra = {}) {
   if (!keepGid) ui.gid++; // หยุดแอนิเมชันที่ค้าง
   Object.assign(ui, { phase: 'end', busy: false, winner, winReason: reason, oppHidden: 0 });
   addLog(`Winner Phase · ${winner === 'DRAW' ? 'ไม่มีผล' : `${tagOf(winner)} WIN!`} — ${reason}`, 'sys');
-  presence({ seat: null, at: null, inp: {} });
+  presence({ seat: null, at: null, inp: {}, ...extra });
   render();
   sfx.play(winner === ME ? 'win' : winner === OPP ? 'lose' : 'levelup');
 }
 function pvpForfeit(why = 'gone') {
   const P = ui.pvp;
-  if (ui.winner || !P) return;
+  if (ui.winner || !P || P.forfeit) return;
   P.forfeit = true;
-  presence({ over: P.mid }); // บอกอีกฝ่าย (ถ้ายังต่ออยู่) ว่าแมตช์นี้จบแล้ว ผลต้องตรงกันทั้งสองเครื่อง
-  pvpEnd(ME, why === 'slow' ? `${esc(P.oppNick || OPP)} ไม่ตอบสนองนานเกินไป — ชนะเพราะอีกฝ่ายหลุด` : `${esc(P.oppNick || OPP)} ออกจากเกม / หลุดการเชื่อมต่อ — ชนะเพราะอีกฝ่ายออก`);
+  // ตั้งผู้ชนะก่อน แล้วค่อยบอกอีกฝ่าย (over = แมตช์นี้จบแล้ว ผลต้องตรงกันทั้งสองเครื่อง)
+  pvpEnd(ME, why === 'slow' ? `${esc(P.oppNick || OPP)} ไม่ตอบสนองนานเกินไป — ชนะเพราะอีกฝ่ายหลุด` : `${esc(P.oppNick || OPP)} ออกจากเกม / หลุดการเชื่อมต่อ — ชนะเพราะอีกฝ่ายออก`, false, { over: P.mid });
 }
 // ออกจากแมตช์ (จบเกม / กดออก): ล้างที่นั่งใน presence ให้คนอื่นใช้ต่อ
 function pvpLeaveMatch() {
