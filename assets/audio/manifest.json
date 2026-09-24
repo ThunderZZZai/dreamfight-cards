@@ -84,24 +84,24 @@
   },
   "discard": {
    "file": "assets/audio/sfx-discard.mp3",
-   "gain": 1.413,
-   "dur": 0.609,
-   "source": 383769,
-   "title": "Swoosh 015",
-   "author": "Universfield",
-   "page": "https://pixabay.com/sound-effects/film-special-effects-swoosh-015-383769/",
+   "gain": 0.997,
+   "dur": 0.443,
+   "source": 252617,
+   "title": "Paper Rip Fast",
+   "author": "TanwerAman",
+   "page": "https://pixabay.com/sound-effects/film-special-effects-paper-rip-fast-252617/",
    "sources": [
     {
-     "id": 383769,
-     "title": "Swoosh 015",
-     "author": "Universfield",
-     "page": "https://pixabay.com/sound-effects/film-special-effects-swoosh-015-383769/"
+     "id": 252617,
+     "title": "Paper Rip Fast",
+     "author": "TanwerAman",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-paper-rip-fast-252617/"
     },
     {
-     "id": 522516,
-     "title": "Taking playing card - 2",
-     "author": "OxidVideos",
-     "page": "https://pixabay.com/sound-effects/film-special-effects-taking-playing-card-2-522516/"
+     "id": 186586,
+     "title": "Fire Torch Whoosh 2",
+     "author": "floraphonic",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-fire-torch-whoosh-2-186586/"
     }
    ]
   },
@@ -157,12 +157,26 @@
   },
   "win": {
    "file": "assets/audio/sfx-win.mp3",
-   "gain": 1.413,
-   "dur": 3.372,
-   "source": 152480,
-   "title": "Victory Fanfare",
-   "author": "Universfield",
-   "page": "https://pixabay.com/sound-effects/musical-victory-fanfare-152480/"
+   "gain": 1.406,
+   "dur": 4.187,
+   "source": 122875,
+   "title": "Turbo / Action Powerful Rock Logo",
+   "author": "SoulProdMusic",
+   "page": "https://pixabay.com/music/rock-turbo-action-powerful-rock-logo-intro-outro-rock-music-122875/",
+   "sources": [
+    {
+     "id": 122875,
+     "title": "Turbo / Action Powerful Rock Logo",
+     "author": "SoulProdMusic",
+     "page": "https://pixabay.com/music/rock-turbo-action-powerful-rock-logo-intro-outro-rock-music-122875/"
+    },
+    {
+     "id": 139134,
+     "title": "Aggressive Huge Hit Logo",
+     "author": "Alex_Kizenkov",
+     "page": "https://pixabay.com/sound-effects/film-special-effects-aggressive-huge-hit-logo-139134/"
+    }
+   ]
   },
   "lose": {
    "file": "assets/audio/sfx-lose.mp3",
@@ -402,26 +416,28 @@
   "calm": {
    "file": "assets/audio/bgm-calm.mp3",
    "gain": 1.0,
-   "loopStart": 55.92678,
-   "loopEnd": 81.52678,
-   "bpm": 75.0,
-   "dur": 82.027,
-   "source": 184140,
-   "title": "Fantasy Quest",
-   "author": "The_Mountain",
-   "page": "https://pixabay.com/music/main-title-fantasy-quest-184140/"
+   "loopStart": 1.85712,
+   "loopEnd": 64.626349,
+   "bpm": 130.0,
+   "dur": 65.126,
+   "source": 111444,
+   "title": "Motivation Epic Rock",
+   "author": "AlexGrohl",
+   "page": "https://pixabay.com/music/rock-motivation-epic-rock-111444/",
+   "enterAt": 0.0
   },
   "danger": {
    "file": "assets/audio/bgm-danger.mp3",
-   "gain": 1.0,
-   "loopStart": 62.320748,
-   "loopEnd": 89.74932,
-   "bpm": 105.0,
-   "dur": 90.249,
-   "source": 179466,
-   "title": "Trailer Intense",
-   "author": "The_Mountain",
-   "page": "https://pixabay.com/music/main-title-trailer-intense-179466/"
+   "gain": 1.12,
+   "loopStart": 6.0,
+   "loopEnd": 66.0,
+   "bpm": 160.0,
+   "dur": 66.5,
+   "source": 277580,
+   "title": "Epic Dubstep",
+   "author": "Kulakovka",
+   "page": "https://pixabay.com/music/dubstep-epic-dubstep-277580/",
+   "enterAt": 0.0
   }
  }
 }

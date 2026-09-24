@@ -4,7 +4,7 @@ Every sound and music file in `assets/audio/` is made from free audio downloaded
 
 You may not sell or redistribute these files as they are, on their own (for example as a sound pack). Here they are part of the game, which the licence allows.
 
-**YouTube Content ID:** Pixabay flags both music tracks as registered with Content ID. That does not matter inside the game. If gameplay or teaser video with this music is uploaded to YouTube, a claim can appear. Clear it with the Pixabay licence/certificate from the track page.
+**YouTube Content ID:** Pixabay flags both music tracks and the rock riff in the win sting (Turbo / Action Powerful Rock Logo, 122875) as registered with Content ID. That does not matter inside the game. If gameplay or teaser video with this audio is uploaded to YouTube, a claim can appear. Clear it with the Pixabay licence/certificate from the track page.
 
 Processing (trim, fades, level, layering, pitch, loop cross-fade, MP3 encode) is done by `audio-src/build_music.py`, `build_combat.py` and `build_ui.py`. Checks and this file come from `build_merge.py`.
 
@@ -12,8 +12,8 @@ Processing (trim, fades, level, layering, pitch, loop cross-fade, MP3 encode) is
 
 | File | Pixabay title | Author | Page | Content ID |
 |---|---|---|---|---|
-| `bgm-calm.mp3` | Fantasy Quest (184140) | The_Mountain | https://pixabay.com/music/main-title-fantasy-quest-184140/ | yes |
-| `bgm-danger.mp3` | Trailer Intense (179466) | The_Mountain | https://pixabay.com/music/main-title-trailer-intense-179466/ | yes |
+| `bgm-calm.mp3` | Motivation Epic Rock (111444) | AlexGrohl | https://pixabay.com/music/rock-motivation-epic-rock-111444/ | yes |
+| `bgm-danger.mp3` | Epic Dubstep (277580) | Kulakovka | https://pixabay.com/music/dubstep-epic-dubstep-277580/ | yes |
 
 ## Sound effects
 
@@ -30,14 +30,15 @@ Layered sounds list every source they use.
 | defend | `sfx-defend.mp3` | Sword Slash With Metal Shield Impact (185433) | DavidDumaisAudio | https://pixabay.com/sound-effects/film-special-effects-sword-slash-with-metal-shield-impact-185433/ |
 | dodge | `sfx-dodge.mp3` | Whoosh Effect (405447) | DRAGON-STUDIO | https://pixabay.com/sound-effects/film-special-effects-whoosh-effect-405447/ |
 | miss | `sfx-miss.mp3` | Near Miss Swing Whoosh 18 (233442) | floraphonic | https://pixabay.com/sound-effects/film-special-effects-near-miss-swing-whoosh-18-233442/ |
-| discard | `sfx-discard.mp3` | Swoosh 015 (383769) | Universfield | https://pixabay.com/sound-effects/film-special-effects-swoosh-015-383769/ |
-|  |  | Taking playing card - 2 (522516) | OxidVideos | https://pixabay.com/sound-effects/film-special-effects-taking-playing-card-2-522516/ |
+| discard | `sfx-discard.mp3` | Paper Rip Fast (252617) | TanwerAman | https://pixabay.com/sound-effects/film-special-effects-paper-rip-fast-252617/ |
+|  |  | Fire Torch Whoosh 2 (186586) | floraphonic | https://pixabay.com/sound-effects/film-special-effects-fire-torch-whoosh-2-186586/ |
 | hurt | `sfx-hurt.mp3` | Power Punch (192118) | Universfield | https://pixabay.com/sound-effects/film-special-effects-power-punch-192118/ |
 | heal | `sfx-heal.mp3` | Spell Casting (229208) | Universfield | https://pixabay.com/sound-effects/film-special-effects-spell-casting-229208/ |
 | levelup3 | `sfx-levelup3.mp3` | Power Up Sparkle 1 (177983) | floraphonic | https://pixabay.com/sound-effects/film-special-effects-power-up-sparkle-1-177983/ |
 |  |  | Level Complete (143022) | Universfield | https://pixabay.com/sound-effects/film-special-effects-level-complete-143022/ |
 | levelup | `sfx-levelup.mp3` | Level Up 02 (199574) | Universfield | https://pixabay.com/sound-effects/film-special-effects-level-up-02-199574/ |
-| win | `sfx-win.mp3` | Victory Fanfare (152480) | Universfield | https://pixabay.com/sound-effects/musical-victory-fanfare-152480/ |
+| win | `sfx-win.mp3` | Turbo / Action Powerful Rock Logo (122875) | SoulProdMusic | https://pixabay.com/music/rock-turbo-action-powerful-rock-logo-intro-outro-rock-music-122875/ |
+|  |  | Aggressive Huge Hit Logo (139134) | Alex_Kizenkov | https://pixabay.com/sound-effects/film-special-effects-aggressive-huge-hit-logo-139134/ |
 | lose | `sfx-lose.mp3` | Fail Trumpet (144746) | Universfield | https://pixabay.com/sound-effects/film-special-effects-fail-trumpet-144746/ |
 | intro | `sfx-intro.mp3` | Riser Hit sfx 001 (289802) | AudioPapkin | https://pixabay.com/sound-effects/film-special-effects-riser-hit-sfx-001-289802/ |
 |  |  | Cinematic Riser 03 (414575) | DRAGON-STUDIO | https://pixabay.com/sound-effects/film-special-effects-cinematic-riser-03-414575/ |
@@ -63,6 +64,6 @@ Layered sounds list every source they use.
 |  |  | Heartbeat - Single (383748) | Universfield | https://pixabay.com/sound-effects/film-special-effects-heartbeat-single-383748/ |
 | swap | `sfx-swap.mp3` | Shuffle cards (46455) | freesound_community | https://pixabay.com/sound-effects/film-special-effects-shuffle-cards-46455/ |
 
-## Authors (11), 40 Pixabay sources in total
+## Authors (15), 41 Pixabay sources in total
 
-AudioPapkin, DavidDumaisAudio, DRAGON-STUDIO, floraphonic, freesound_community, LordSonny, OxidVideos, RescopicSound, The_Mountain, u_fe12rqkbth, Universfield
+Alex_Kizenkov, AlexGrohl, AudioPapkin, DavidDumaisAudio, DRAGON-STUDIO, floraphonic, freesound_community, Kulakovka, LordSonny, OxidVideos, RescopicSound, SoulProdMusic, TanwerAman, u_fe12rqkbth, Universfield

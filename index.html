@@ -1146,7 +1146,7 @@ const sfx = (() => {
       await Promise.all(['calm', 'danger'].map(async k => {
         const m = man.bgm && man.bgm[k];
         if (!m) return;
-        try { mb[k] = { buf: await fetchBuf(m.file), gain: Number.isFinite(m.gain) ? m.gain : 1, loopStart: +m.loopStart || 0, loopEnd: +m.loopEnd || 0 }; } catch (e) { /* ใช้เพลงสังเคราะห์ */ }
+        try { mb[k] = { buf: await fetchBuf(m.file), gain: Number.isFinite(m.gain) ? m.gain : 1, loopStart: +m.loopStart || 0, loopEnd: +m.loopEnd || 0, enterAt: Number.isFinite(m.enterAt) ? m.enterAt : null }; } catch (e) { /* ใช้เพลงสังเคราะห์ */ }
       }));
       musicBank = mb.calm && mb.danger ? mb : false;
     } catch (e) { bankState = 'failed'; musicBank = false; }
@@ -1942,7 +1942,8 @@ function createMusic(bus) {
 }
 // เปิดเพลงตอนเริ่มเกม · HP ฝ่ายใดต่ำกว่า 40 = เปลี่ยนเป็นเพลงเร้าใจ · จบเกม/ออกจากเกม = ค่อย ๆ หยุด · ปิดได้ที่ปุ่ม "เพลง" (ปิด "เสียง" = เงียบทั้งหมด)
 const BGM_LOW_HP = 40, BGM_XFADE = 1.6;
-// เพลงจากไฟล์: วนลูปช่วง loopStart–loopEnd (จุดต่อที่วิเคราะห์ไว้ให้ตรงห้องเพลง) · สลับเพลง = ครอสเฟด · เริ่มแมตช์ = เล่นจากต้นเพลง (อินโทร)
+// เพลงจากไฟล์: วนลูปช่วง loopStart–loopEnd (จุดต่อที่วิเคราะห์ไว้ให้ตรงห้องเพลง) · สลับเพลง = ครอสเฟด
+// เริ่มที่ enterAt = ท่อนมันส์แรก (ข้ามอินโทรเงียบ ๆ) ทั้งตอนเริ่มแมตช์และตอนสลับ · ไม่มี enterAt → เริ่มแมตช์ที่ 0 / สลับที่ต้นลูป
 function loopPlayer(bus, tracks) {
   const c = bus.ctx, T = [tracks.calm, tracks.danger];
   let cur = null, lv = 0, playing = false;
@@ -1962,11 +1963,11 @@ function loopPlayer(bus, tracks) {
     v.s.onended = () => { try { v.g.disconnect(); } catch (e) { /* ข้ามได้ */ } };
   }
   return {
-    start(level = 0) { level = level ? 1 : 0; if (playing) return this.setIntensity(level); lv = level; playing = true; cur = voice(lv, 0, 1.2); },
+    start(level = 0) { level = level ? 1 : 0; if (playing) return this.setIntensity(level); lv = level; playing = true; cur = voice(lv, T[lv].enterAt != null ? T[lv].enterAt : 0, 0.6); },
     setIntensity(level) {
       level = level ? 1 : 0;
       if (!playing || level === lv) { lv = level; return; }
-      release(cur, BGM_XFADE); lv = level; cur = voice(lv, T[lv].loopStart, BGM_XFADE); // เข้าเพลงใหม่ที่ต้นลูป (ข้ามอินโทรเงียบ ๆ)
+      release(cur, BGM_XFADE); lv = level; cur = voice(lv, T[lv].enterAt != null ? T[lv].enterAt : T[lv].loopStart, BGM_XFADE);
     },
     stop(fade = 1.5) { if (!playing) return; playing = false; release(cur, fade); cur = null; },
     get playing() { return playing; },
