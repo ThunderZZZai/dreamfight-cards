@@ -1942,6 +1942,9 @@ function createMusic(bus) {
 }
 // เปิดเพลงตอนเริ่มเกม · HP ฝ่ายใดต่ำกว่า 40 = เปลี่ยนเป็นเพลงเร้าใจ · จบเกม/ออกจากเกม = ค่อย ๆ หยุด · ปิดได้ที่ปุ่ม "เพลง" (ปิด "เสียง" = เงียบทั้งหมด)
 const BGM_LOW_HP = 40, BGM_XFADE = 1.6;
+// ความดังเพลงจากไฟล์: ไฟล์ทำไว้ที่ลูป -20 LUFS (audio-src/build_merge.py) · เกมเล่นเบาลงอีก BGM_FILE_DB (ตี้ 2026-09-25 "เพลงประกอบดังไปหน่อย ลดลงสัก -6 db")
+// วัดหลังคอมเพรสเซอร์ของเกมแล้ว ได้ยินเบาลง 5.9 dB (เพลงหลัก) / 5.8 dB (เพลงเลือดน้อย) · เพลงสังเคราะห์สำรองมีระดับของตัวเอง ไม่เกี่ยว
+const BGM_FILE_DB = -6, BGM_FILE_GAIN = Math.pow(10, BGM_FILE_DB / 20);
 // เพลงจากไฟล์: วนลูปช่วง loopStart–loopEnd (จุดต่อที่วิเคราะห์ไว้ให้ตรงห้องเพลง) · สลับเพลง = ครอสเฟด
 // เริ่มที่ enterAt = ท่อนมันส์แรก (ข้ามอินโทรเงียบ ๆ) ทั้งตอนเริ่มแมตช์และตอนสลับ · ไม่มี enterAt → เริ่มแมตช์ที่ 0 / สลับที่ต้นลูป
 function loopPlayer(bus, tracks) {
@@ -1951,7 +1954,7 @@ function loopPlayer(bus, tracks) {
     const t = T[level], s = c.createBufferSource(), g = c.createGain(), now = c.currentTime;
     s.buffer = t.buf;
     if (t.loopEnd > t.loopStart) { s.loop = true; s.loopStart = t.loopStart; s.loopEnd = t.loopEnd; } else s.loop = true;
-    g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(t.gain, now + fade);
+    g.gain.setValueAtTime(0.0001, now); g.gain.linearRampToValueAtTime(t.gain * BGM_FILE_GAIN, now + fade);
     s.connect(g); g.connect(bus.out);
     s.start(now, Math.min(from, Math.max(0, t.buf.duration - 0.1)));
     return { s, g };
