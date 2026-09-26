@@ -450,7 +450,6 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important}
 .oslot.drop-bad{outline:4px solid var(--bad);outline-offset:6px;border-radius:12px}
 .slot-empty.wait{color:var(--muted);border:2px dashed var(--line-2);animation:blink calc(1s*var(--spd)) ease-in-out infinite alternate}
 .slot-empty.drop-hint{color:var(--gold);font-weight:600}
-.c-stack{position:absolute;right:6%;bottom:17%;padding:0 .45em;border-radius:999px;background:var(--gold);color:#1a1204;font-family:var(--font-disp);font-weight:700;font-size:calc(var(--cw,150px)*.12);line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,.55)}
 .hint.flash{color:var(--gold);animation:hintFlash calc(.5s*var(--spd)) ease}
 @keyframes hintFlash{30%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
 
@@ -2240,7 +2239,7 @@ function moveStack(a, b, fromRect) {
   const L = previewLanes(), A = L[a], B = L[b];
   if (!A) return false;
   const kind = !B ? 'move' : B.type === A.type && A.lv + B.lv <= 3 ? 'merge' : 'swap';
-  const bHTML = B && cardHTML(B, { stack: B.ids.length }), bRect = B && rectOf(slotCardEl(b));
+  const bHTML = B && cardHTML(B), bRect = B && rectOf(slotCardEl(b));
   saveUndo();
   if (kind === 'merge') {
     const moving = ui.place.filter(p => p.slot === a).map(p => ({ id: p.id, slot: b }));
@@ -2249,7 +2248,7 @@ function moveStack(a, b, fromRect) {
   ui.justPlaced = kind === 'swap' ? [A.ids[0], B.ids[0]] : [A.ids[0]];
   sfx.play(kind === 'merge' ? (A.lv + B.lv >= 3 ? 'levelup3' : 'levelup') : kind === 'swap' ? 'swap' : 'place');
   render();
-  flyIn(cardHTML(A, { stack: A.ids.length }), fromRect, rectOf(slotCardEl(b)), 0, PLACE_MS);
+  flyIn(cardHTML(A), fromRect, rectOf(slotCardEl(b)), 0, PLACE_MS);
   if (kind === 'swap') flyIn(bHTML, bRect, rectOf(slotCardEl(a)), 0, PLACE_MS);
   if (kind === 'swap' && B.type === A.type) flashHint(`รวมแล้วเกิน Lv3 — สลับช่อง ${a + 1} กับช่อง ${b + 1} ให้แทน`);
   return true;
@@ -2696,7 +2695,7 @@ function cardHTML(c, o = {}) {
     : ` role="img" aria-label="${INFO[c.type].name} Lv${c.lv}"`;
   const cls = ['card', `k-${c.type}`, c.lv > 1 && `lv${c.lv}`, o.sel && 'sel', o.act && 'clickable', o.cls].filter(Boolean).join(' ');
   const extra = `${o.cid != null ? ` data-cid="${o.cid}"` : ''}${o.style ? ` style="${o.style}"` : ''}`;
-  return `<${el} class="${cls}"${attrs}${extra}><img class="c-art" src="${ART[c.type]}" alt="" draggable="false"><span class="c-lv"><small>LV</small>${c.lv}</span><span class="c-name">${INFO[c.type].name}</span>${o.stack > 1 ? `<span class="c-stack">×${o.stack}</span>` : ''}${o.picked ? '<span class="c-new c-pick">เก็บ</span>' : o.fresh ? '<span class="c-new">ใหม่</span>' : ''}</${el}>`;
+  return `<${el} class="${cls}"${attrs}${extra}><img class="c-art" src="${ART[c.type]}" alt="" draggable="false"><span class="c-lv"><small>LV</small>${c.lv}</span><span class="c-name">${INFO[c.type].name}</span>${o.picked ? '<span class="c-new c-pick">เก็บ</span>' : o.fresh ? '<span class="c-new">ใหม่</span>' : ''}</${el}>`;
 }
 const backHTML = (cls = '', style = '') => `<div class="card back ${cls}"${style ? ` style="${style}"` : ''}><img class="back-logo" src="assets/logo-df.webp" alt="" draggable="false"></div>`;
 // เปิดการ์ด: เริ่มจากหลังการ์ดแล้วพลิกเป็นหน้าการ์ด (d = หน่วงก่อนพลิก ms) · กองกลางพลิกห่างกันใบละ REVEAL_GAP
@@ -2717,8 +2716,7 @@ function slotHTML(s, i) {
   const P = ui.g.p[s];
   if (ui.mode === 'spec') {
     if (!P.lanes) return ui.phase === 'action' ? '<div class="slot-empty wait">รอ…</div>' : '';
-    const st = P.lanes[i] ? P.lanes[i].ids.length : 0;
-    return laneHTML(P.lanes[i], { stack: st, cls: ui.slotArrive ? 'arrive' : '', style: ui.slotArrive ? `--d:${landAt(i)}ms` : '' });
+    return laneHTML(P.lanes[i], { cls: ui.slotArrive ? 'arrive' : '', style: ui.slotArrive ? `--d:${landAt(i)}ms` : '' });
   }
   if (s === OPP) {
     // PVP: อีกฝ่ายยังไม่วาง → ช่องรอ (ไม่บอกอะไรนอกจากว่ายังไม่วาง)
@@ -2726,18 +2724,17 @@ function slotHTML(s, i) {
     // ยังไม่เปิด: ทุกช่องเป็นหลังการ์ดเหมือนกันหมด — ไม่บอกว่ามีการ์ด ว่าง หรือซ้อนกี่ใบ
     if (ui.shown < i) return backHTML(ui.slotArrive ? 'arrive' : '', ui.slotArrive ? `--d:${landAt(i)}ms` : '');
     const revealing = ui.phase === 'fight' && ui.shown === i && !ui.results[i];
-    const st = P.lanes[i] ? P.lanes[i].ids.length : 0;
-    if (revealing) return flipHTML(P.lanes[i] ? cardHTML(P.lanes[i], { stack: st }) : '<div class="slot-empty">ว่าง</div>');
-    return laneHTML(P.lanes[i], { stack: st });
+    if (revealing) return flipHTML(P.lanes[i] ? cardHTML(P.lanes[i]) : '<div class="slot-empty">ว่าง</div>');
+    return laneHTML(P.lanes[i]);
   }
   if (ui.phase === 'action' && !P.lanes) {
     const l = previewLanes()[i];
     if (!l) return ui.place.length < needPlace() ? '<div class="slot-empty drop-hint">แตะ / ลาก<br>การ์ดมาวาง</div>' : '<div class="slot-empty">ว่าง</div>';
     const just = ui.justPlaced || [], hit = l.ids.some(id => just.includes(id));
     const landing = hit ? `--d:${Math.round(PLACE_MS * spdK())}ms` : '';
-    return laneHTML(l, { act: 'unplace', data: i, style: landing, stack: l.ids.length, cls: just.includes(l.ids[0]) ? 'arrive' : hit ? 'lvup' : '' });
+    return laneHTML(l, { act: 'unplace', data: i, style: landing, cls: just.includes(l.ids[0]) ? 'arrive' : hit ? 'lvup' : '' });
   }
-  return P.lanes ? laneHTML(P.lanes[i], { stack: P.lanes[i] ? P.lanes[i].ids.length : 0 }) : '';
+  return P.lanes ? laneHTML(P.lanes[i]) : '';
 }
 // ช่องหลังช่องที่ K.O. ไม่ได้เปิดปะทะ
 const unplayed = i => ui.phase === 'end' && !!ui.ko && i > ui.ko.lane;
@@ -2803,9 +2800,8 @@ function clashHTML() {
   const ctr = counterSide(r);
   const big = s => {
     const o = r[s], c = o.card;
-    const st = { stack: o.lane ? o.lane.ids.length : 0 };
     const inner = c
-      ? (done ? cardHTML(c, st) : s === OPP ? flipHTML(cardHTML(c, st)) : cardHTML(c, { ...st, cls: 'pop' }))
+      ? (done ? cardHTML(c) : s === OPP ? flipHTML(cardHTML(c)) : cardHTML(c, { cls: 'pop' }))
       : '<div class="slot-empty big">ช่องว่าง</div>';
     const hit = fx && fx.counter ? (fx.counter === s ? ' fx-counter' : ' fx-countered') : '';
     const tag = ctr === s ? '<span class="ctr-tag">ชนะทาง</span>' : '';
@@ -3916,7 +3912,7 @@ function flashHint(text) {
   clearTimeout(flashHint.t);
   flashHint.t = setTimeout(() => { if (ui.screen === 'game' && !ui.intro) renderControls(); }, 1800);
 }
-const dragHTML = d => (d.from === 'slot' ? cardHTML(d.lane, { stack: d.lane.ids.length }) : cardHTML({ type: d.c.type, lv: d.c.lv }));
+const dragHTML = d => cardHTML(d.from === 'slot' ? d.lane : { type: d.c.type, lv: d.c.lv });
 function beginDrag(p, e) {
   const r = p.el.getBoundingClientRect(), L = toLocal(r), g = document.createElement('div');
   g.className = 'drag-ghost';
